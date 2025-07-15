@@ -16,5 +16,8 @@
   "workspaces": [
     "client",
     "server"
-  ]
+  ],
+  "dependencies": {
+    "concurrently": "^9.2.0"
+  }
 }
