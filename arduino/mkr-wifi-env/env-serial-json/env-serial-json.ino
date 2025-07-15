@@ -12,7 +12,7 @@ void setup() {
 
 void loop() {
   // Constants
-  // How often we print the data
+  // How often we print the jsonEnvData
   const int updateInterval = 5000;
 
   // Read all the sensor values
@@ -25,17 +25,17 @@ void loop() {
   float uvIndex     = ENV.readUVIndex();
 
   // Format ENV data into JSON string for a single payload
-  String data = "{ \"environment\": { \"temperature\": " + String(temperature) +
+  String jsonEnvData = "{ \"environment\": { \"temperature\": " + String(temperature) +
               ", \"humidity\": " + String(humidity) +
               ", \"pressure\": " + String(pressure) +
               ", \"illuminance\": " + String(illuminance) +
               ", \"uva\": " + String(uva) +
               ", \"uvb\": " + String(uvb) +
-              ", \"uvIndex\": " + String(uvIndex) + " } }";
+              ", \"uvIndex\": " + String(uvIndex) + " } }\n";
   
-  // Print data to serial for Pi to use
-  Serial.print(data);
+  // Print jsonEnvData to serial for Pi to use
+  Serial.println(jsonEnvData);
 
-  // Update the data every 5 seconds
+  // Update the jsonEnvData every 5 seconds
   delay(updateInterval);
 }
