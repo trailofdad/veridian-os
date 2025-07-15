@@ -1,7 +1,7 @@
 import { SerialPort, ReadlineParser } from 'serialport';
 import fetch from 'node-fetch';
 
-const ARDUINO_PORT = '/dev/ttyACM0'; // Or '/dev/ttyUSB0', check with `ls /dev/tty*`
+const ARDUINO_PORT = '/dev/tty.usbmodem1101'; // Or '/dev/ttyUSB0', check with `ls /dev/tty*`
 const BAUD_RATE = 9600; // Must match your Arduino sketch
 const EXPRESS_API_URL = 'http://localhost:3001/api/sensor-data'; // Match your Express port
 

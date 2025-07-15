@@ -6,7 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
-    "baseUrl": "./",
+    "baseUrl": ".",
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -14,7 +14,7 @@
     "incremental": true,
     "module": "esnext",
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -22,7 +22,13 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    // Path aliases
+    "paths": {
+      // This alias allows you to import modules relative to the 'src' directory
+      // For example, instead of '../../components/button', you can do '@/components/button'
+      "@/*": ["./src/*"] // <--- This maps '@/...' to './src/...'
+    }
   },
   "include": [
     "next-env.d.ts",
@@ -34,3 +40,30 @@
     "node_modules"
   ]
 }
+
+// {
+//   "compilerOptions": {
+//     "lib": ["dom", "dom.iterable", "esnext"],
+//     "allowJs": true,
+//     "skipLibCheck": true,
+//     "strict": true,
+//     "noEmit": true, // Next.js handles emission
+//     "esModuleInterop": true,
+//     "module": "esnext", // Important for modern JS modules
+//     "moduleResolution": "bundler", // Or "node" for older setups, "bundler" is recommended for Next.js 13+
+//     "resolveJsonModule": true,
+//     "isolatedModules": true, // Ensures files can be compiled independently
+//     "jsx": "preserve", // Critical for React JSX
+//     "incremental": true,
+//     "plugins": [
+//       {
+//         "name": "next"
+//       }
+//     ],
+//     "paths": {
+//       "@/*": ["./*"]
+//     }
+//   },
+//   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+//   "exclude": ["node_modules"]
+// }

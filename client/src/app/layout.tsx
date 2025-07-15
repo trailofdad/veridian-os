@@ -1,6 +1,6 @@
 import { GeistSans } from "geist/font/sans"; // import font
 // These styles apply to every route in the application
-import "globals.css";
+import "./globals.css";
 
 export default function RootLayout({
   children,

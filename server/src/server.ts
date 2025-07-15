@@ -32,7 +32,7 @@ app.use(express.static(clientBuildPath));
 
 // Catch-all for React app (for client-side routing in Next.js SSG/SPA mode)
 // This serves index.html for any unmatched routes, letting Next.js handle client-side routing.
-app.get('*', (req, res) => {
+app.get('/{*any}', (req, res) => {
     // Only serve index.html for actual page requests, not API calls or static assets not found
     if (!req.path.startsWith('/api') && !req.path.includes('.')) { // Avoid intercepting API calls or static file requests
         res.sendFile(path.resolve(clientBuildPath, 'index.html'));
@@ -53,7 +53,7 @@ initializeDatabase().then(() => {
     });
 }).catch(err => {
     console.error('Failed to initialize database. Server will not start:', err);
-    process.exit(1); // Exit the process if database initialization fails
+    process.exit(1);// Exit the process if database initialization fails
 });
 
 // --- Graceful Shutdown ---
