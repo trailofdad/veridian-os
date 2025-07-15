@@ -25,13 +25,13 @@ void loop() {
   float uvIndex     = ENV.readUVIndex();
 
   // Format ENV data into JSON string for a single payload
-  String jsonEnvData = "{ \"environment\": { \"temperature\": " + String(temperature) +
+  String jsonEnvData = "{ \"temperature\": " + String(temperature) +
               ", \"humidity\": " + String(humidity) +
               ", \"pressure\": " + String(pressure) +
               ", \"illuminance\": " + String(illuminance) +
               ", \"uva\": " + String(uva) +
               ", \"uvb\": " + String(uvb) +
-              ", \"uvIndex\": " + String(uvIndex) + " } }";
+              ", \"uvIndex\": " + String(uvIndex) + " }";
   
   // Print jsonEnvData to serial for Pi to use
   Serial.println(jsonEnvData);

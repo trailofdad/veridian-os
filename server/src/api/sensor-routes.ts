@@ -24,7 +24,7 @@ router.post('/sensor-data', (req: Request, res: Response) => {
                     if (key === 'temperature') unit = '°C';
                     else if (key === 'humidity') unit = '%';
                     else if (key === 'soil_moisture') unit = '%';
-                    else if (key === 'light') unit = 'lux';
+                    else if (key === 'illuminance') unit = 'lux';
                     else if (key === 'pressure') unit = 'hPa'; // Example for pressure
 
                     // Ensure value is a number before inserting

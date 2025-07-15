@@ -26,7 +26,7 @@ app.use('/api', sensorRoutes);
 // In a production environment on the Pi, Nginx/Caddy would often serve the static
 // Next.js build files directly. For simpler local hosting, Express can do it.
 // Ensure this path is correct for your monorepo structure:
-// veridian-os/server/src -> veridian-os/client/build
+// veridian-os/server/src -> veridian-os/client/out
 const clientBuildPath = path.resolve(__dirname, '../../client/out'); // Next.js exports to 'out' directory for static builds
 app.use(express.static(clientBuildPath));
 
