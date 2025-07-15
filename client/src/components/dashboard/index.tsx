@@ -1,5 +1,6 @@
 "use client";
 
+import { formatToADT } from "@/utils/format-date";
 import { Card, Metric, Text, Grid } from "@tremor/react";
 import { useState, useEffect } from "react";
 
@@ -36,7 +37,7 @@ export const Dashboard = () => {
     };
 
     fetchSensorData(); // Initial fetch
-    const intervalId = setInterval(fetchSensorData, 5000); // Fetch every 5 seconds
+    const intervalId = setInterval(fetchSensorData, 3000); // Fetch every 3 seconds
 
     return () => clearInterval(intervalId); // Cleanup on component unmount
   }, []);
@@ -75,12 +76,7 @@ export const Dashboard = () => {
                 {sensor.unit}
               </Metric>
               <Text className="mt-2 text-sm text-gray-500">
-                Last updated:{" "}
-                {new Date(sensor.timestamp).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })}
+                {formatToADT(sensor.timestamp)}
               </Text>
             </Card>
           ))}

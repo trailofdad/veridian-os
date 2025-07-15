@@ -13,7 +13,7 @@ void setup() {
 void loop() {
   // Constants
   // How often we print the jsonEnvData
-  const int updateInterval = 5000;
+  const int updateInterval = 3000;
 
   // Read all the sensor values
   float temperature = ENV.readTemperature();
