@@ -31,7 +31,7 @@ void loop() {
               ", \"illuminance\": " + String(illuminance) +
               ", \"uva\": " + String(uva) +
               ", \"uvb\": " + String(uvb) +
-              ", \"uvIndex\": " + String(uvIndex) + " } }\n";
+              ", \"uvIndex\": " + String(uvIndex) + " } }";
   
   // Print jsonEnvData to serial for Pi to use
   Serial.println(jsonEnvData);

@@ -4,13 +4,12 @@ import { getDbInstance } from '../db/db'; // Import your database instance helpe
 
 const router = Router();
 
-// --- Define your API Endpoints ---
-
 // POST /api/sensor-data
 // Endpoint to receive sensor data from the serial reader script (or other sources)
+// Expected req.body: an object like { "temperature": 25.3, "humidity": 60.1, "light": 500 }
 router.post('/sensor-data', (req: Request, res: Response) => {
-    const sensorData = req.body; // Expecting an object like { "temperature": 25.3, "humidity": 60.1, "light": 500 }
-    const db = getDbInstance(); // Get the SQLite database instance
+    const sensorData = req.body;
+    const db = getDbInstance();
     const insertStmt = db.prepare('INSERT INTO sensor_readings (sensor_type, value, unit) VALUES (?, ?, ?)');
 
     try {
@@ -19,19 +18,21 @@ router.post('/sensor-data', (req: Request, res: Response) => {
             for (const key in sensorData) {
                 if (Object.prototype.hasOwnProperty.call(sensorData, key)) {
                     let value = sensorData[key];
-                    let unit = ''; // Default unit, you might want to send this from Arduino or derive more robustly
+                    let unit = ''; // Default unit. Consider sending from Arduino or having a more robust mapping.
 
-                    // Basic unit mapping (expand this based on your Arduino data)
+                    // Basic unit mapping based on common sensor types. Expand as needed.
                     if (key === 'temperature') unit = '°C';
                     else if (key === 'humidity') unit = '%';
                     else if (key === 'soil_moisture') unit = '%';
-                    else if (key === 'light') unit = 'lux'; // Example light unit
+                    else if (key === 'light') unit = 'lux';
+                    else if (key === 'pressure') unit = 'hPa'; // Example for pressure
 
                     // Ensure value is a number before inserting
                     if (typeof value === 'number') {
                         insertStmt.run(key, value, unit);
                     } else {
-                        console.warn(`[API] Skipping non-numeric sensor data for ${key}: ${value}`);
+                        // Log a warning for non-numeric data that isn't saved
+                        console.warn(`[API] Skipping non-numeric sensor data for ${key}: ${value} (Type: ${typeof value})`);
                     }
                 }
             }
@@ -40,18 +41,21 @@ router.post('/sensor-data', (req: Request, res: Response) => {
         res.status(201).json({ message: 'Sensor data received and saved successfully.' });
     } catch (error) {
         console.error('[API] Error saving sensor data:', error);
+        // Cast error to Error to safely access message property
         res.status(500).json({ message: 'Failed to save sensor data.', error: (error as Error).message });
     }
 });
 
 // GET /api/latest-sensors
 // Endpoint to retrieve the most recent reading for each sensor type
+// Returns an array of objects like:
+// [ { id: 1, timestamp: '...', sensor_type: 'temperature', value: 25.3, unit: '°C' }, ... ]
 router.get('/latest-sensors', (req: Request, res: Response) => {
     try {
         const db = getDbInstance();
-        // SQL query to get the latest reading for each sensor type
-        // This subquery finds the maximum timestamp for each sensor_type,
-        // then joins back to get the full row for that latest timestamp.
+        // SQL query to get the latest reading for each unique sensor type.
+        // It uses a subquery to find the maximum timestamp for each sensor_type,
+        // then joins back to get the full row for those latest timestamps.
         const latestReadings = db.prepare(`
             SELECT
                 sr.id,
@@ -83,10 +87,13 @@ router.get('/latest-sensors', (req: Request, res: Response) => {
 
 // GET /api/sensor-history/:sensorType
 // Endpoint to retrieve historical data for a specific sensor type
+// Optional query parameters: ?limit=N (number of results), ?days=N (data from last N days)
+// Returns an array of objects like:
+// [ { timestamp: '...', value: 25.3, unit: '°C' }, ... ]
 router.get('/sensor-history/:sensorType', (req: Request, res: Response) => {
-    const { sensorType } = req.params;
-    // Optional query parameters for limiting data (e.g., ?limit=100&days=7)
-    const { limit = '500', days } = req.query; // Default to 500 points if not specified
+    const { sensorType } = req.params; // Extract sensorType from URL parameter
+    // Extract optional query parameters, providing defaults
+    const { limit, days } = req.query; // limit and days will be strings from query params
 
     try {
         const db = getDbInstance();
@@ -100,27 +107,27 @@ router.get('/sensor-history/:sensorType', (req: Request, res: Response) => {
             WHERE
                 sensor_type = ?
         `;
-        const params: (string | number)[] = [sensorType];
+        const params: (string | number)[] = [sensorType]; // Array to hold parameters for the prepared statement
 
-        // Filter by date if 'days' is provided
-        if (days && typeof days === 'string' && !isNaN(parseInt(days))) {
-            const numDays = parseInt(days);
+        // Filter by date if 'days' is provided and is a valid number
+        if (typeof days === 'string' && !isNaN(parseFloat(days))) {
+            const numDays = parseFloat(days); // Use parseFloat as days could be e.g., "0.5"
             const cutoffDate = new Date();
             cutoffDate.setDate(cutoffDate.getDate() - numDays);
-            query += ` AND timestamp >= ?`; // Filter by timestamp
-            params.push(cutoffDate.toISOString()); // SQLite stores DATETIME as TEXT in ISO format
+            query += ` AND timestamp >= ?`; // Add condition to query
+            params.push(cutoffDate.toISOString()); // Push the ISO string of the cutoff date
         }
 
-        query += ` ORDER BY timestamp ASC`; // Order chronologically for charts
+        query += ` ORDER BY timestamp ASC`; // Order chronologically for charts (oldest to newest)
 
-        // Limit the number of results
-        if (limit && typeof limit === 'string' && !isNaN(parseInt(limit))) {
+        // Limit the number of results if 'limit' is provided and is a valid number
+        if (typeof limit === 'string' && !isNaN(parseInt(limit))) {
             const numLimit = parseInt(limit);
-            query += ` LIMIT ?`;
-            params.push(numLimit);
+            query += ` LIMIT ?`; // Add limit clause
+            params.push(numLimit); // Push the limit number
         }
 
-        const history = db.prepare(query).all(...params);
+        const history = db.prepare(query).all(...params); // Execute the prepared statement with parameters
         res.json(history);
     } catch (error) {
         console.error(`[API] Error fetching history for ${sensorType}:`, error);
@@ -128,4 +135,4 @@ router.get('/sensor-history/:sensorType', (req: Request, res: Response) => {
     }
 });
 
-export default router;
+export default router; // Export the router for use in server.ts

@@ -1,0 +1,16 @@
+// server/tsconfig.json
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "commonjs", 
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+    // If you had "moduleResolution": "NodeNext" or "Bundler", you might try setting it to "node" or removing it for simplicity
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
