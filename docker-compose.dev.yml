@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      target: builder
+    volumes:
+      - ./client:/app/client
+      - /app/client/node_modules
+      - /app/client/.next
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+    command: ["npm", "run", "dev", "--workspace=client"]
+    depends_on:
+      - server
+    networks:
+      - veridian-network
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: builder
+    volumes:
+      - ./server:/app/server
+      - /app/server/node_modules
+      - ./data:/app/data
+    ports:
+      - "8000:3001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_PATH=/app/data/veridian.db
+    command: ["npm", "run", "dev:mock", "--workspace=server"]
+    networks:
+      - veridian-network
+
+volumes:
+  data:
+    driver: local
+
+networks:
+  veridian-network:
+    driver: bridge

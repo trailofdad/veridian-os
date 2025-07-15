@@ -1,17 +1,38 @@
 import { SerialPort, ReadlineParser } from "serialport";
 import fetch from "node-fetch";
-const environment = require("node:process");
+import process from "node:process";
 
-enum PLATFORM_IDS {
-  MACOS = "darwin",
-  LINUX = ""
+// Try different serial ports in order of preference
+const POSSIBLE_PORTS = [
+  "/dev/tty.usbmodem1101",  // macOS Arduino
+  "/dev/ttyUSB0",           // Linux Arduino (common)
+  "/dev/ttyACM0",           // Linux Arduino (alternative)
+  "/dev/tty.usbserial-*",   // macOS FTDI devices
+];
+
+// Function to find the first available port
+function findAvailablePort(): string {
+  const fs = require('fs');
+  
+  for (const port of POSSIBLE_PORTS) {
+    try {
+      if (fs.existsSync(port)) {
+        console.log(`Found serial port: ${port}`);
+        return port;
+      }
+    } catch (error) {
+      // Continue to next port
+    }
+  }
+  
+  // If no port found, default to the first one and let it fail with a helpful message
+  console.log(`No serial ports found. Tried: ${POSSIBLE_PORTS.join(', ')}`);
+  return POSSIBLE_PORTS[0];
 }
-const PLATFORM = environment.platform;
-const MACOS_PORT = "/dev/tty.usbmodem1101";
-const LINUX_PORT = "/dev/ttyUSB0"; // check with `ls /dev/tty*`
-const ARDUINO_PORT = PLATFORM === PLATFORM_IDS.MACOS ? MACOS_PORT : LINUX_PORT;
+
+const ARDUINO_PORT = findAvailablePort();
 const BAUD_RATE = 9600; // Must match your Arduino sketch
-const EXPRESS_API_URL = "http://localhost:3001/api/sensor-data"; // Match your Express port
+const EXPRESS_API_URL = "http://localhost:3001/api/sensor-data"; // Internal container communication
 
 const port = new SerialPort({ path: ARDUINO_PORT, baudRate: BAUD_RATE });
 const parser = port.pipe(new ReadlineParser({ delimiter: "\n" })); // Reads data line by line

@@ -6,7 +6,11 @@
   "scripts": {
     "start": "ts-node src/server.ts",
     "start:serial": "ts-node src/scripts/serial-reader.ts",
-    "dev": "concurrently \"npm run start\" \"npm run start:serial\""
+    "start:mock": "ts-node src/scripts/mock-arduino.ts",
+    "dev": "concurrently \"npm run start\" \"npm run start:serial\"",
+    "dev:mock": "concurrently \"npm run start\" \"npm run start:mock\"",
+    "build": "tsc",
+    "serve": "node dist/server.js"
   },
   "keywords": [],
   "author": "",

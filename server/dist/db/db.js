@@ -1,28 +1,26 @@
 // server/src/db/db.ts
 import path from 'path';
+import { fileURLToPath } from 'url';
 import Database from 'better-sqlite3';
-
 // This variable will hold our database instance
-let db: import('better-sqlite3').Database | null = null;
-
+let db = null;
 // Define the path for your SQLite database file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const dbFilePath = path.resolve(__dirname, '../../../plant_data.db');
-
 /**
  * Initializes the SQLite database: opens the file, enables WAL mode,
  * and creates necessary tables if they don't already exist.
  */
-export async function initializeDatabase(): Promise<void> {
+export async function initializeDatabase() {
     return new Promise((resolve, reject) => {
         try {
             // Open the database. If the file doesn't exist, better-sqlite3 will create it.
             // 'new Database()' now refers to the constructor function we obtained via require.
             db = new Database(dbFilePath);
             console.log(`Connected to SQLite database at ${dbFilePath}`);
-
             // Enable WAL (Write-Ahead Logging) mode.
             db.pragma('journal_mode = WAL');
-
             // --- Create Tables ---
             db.exec(`
                 CREATE TABLE IF NOT EXISTS sensor_readings (
@@ -50,7 +48,8 @@ export async function initializeDatabase(): Promise<void> {
             `);
             console.log('Database tables ensured (created or already exist).');
             resolve();
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Failed to initialize database:', error);
             if (db) {
                 db.close();
@@ -60,12 +59,11 @@ export async function initializeDatabase(): Promise<void> {
         }
     });
 }
-
 /**
  * Returns the initialized SQLite database instance.
  * Throws an error if the database has not been initialized yet.
  */
-export function getDbInstance(): import('better-sqlite3').Database {
+export function getDbInstance() {
     if (!db) {
         throw new Error('Database not initialized. Call initializeDatabase() first.');
     }

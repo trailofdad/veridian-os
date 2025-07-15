@@ -3,6 +3,7 @@
 import { formatToADT } from "@/utils/format-date";
 import { Card, Metric, Text, Grid, Title, Badge } from "@tremor/react";
 import { useState, useEffect } from "react";
+import { apiCall, API_ENDPOINTS } from "@/lib/api-config";
 
 // TODO: Import icons 
 // import { FaThermometerHalf, FaTint, FaLightbulb, FaCloud } from 'react-icons/fa';
@@ -24,12 +25,7 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchSensorData = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:3001/api/latest-sensors"
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await apiCall(API_ENDPOINTS.LATEST_SENSORS);
         const data: SensorReading[] = await response.json();
         setSensorData(data);
       } catch (e: any) {
