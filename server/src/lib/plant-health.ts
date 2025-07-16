@@ -158,14 +158,35 @@ export function getActiveAlerts(): Alert[] {
 }
 
 // Function to dismiss an alert
-export function dismissAlert(alertId: number): boolean {
+export function dismissAlert(alertId: number, autoDismissed: boolean = false, markAsRead: boolean = false): boolean {
   const db = getDbInstance();
-  const query = db.prepare(`
+  
+  // First check if the alert exists
+  const checkQuery = db.prepare(`SELECT id, dismissed FROM alerts WHERE id = ?`);
+  const existingAlert = checkQuery.get(alertId) as { id: number; dismissed: number } | undefined;
+  
+  if (!existingAlert) {
+    console.warn(`[ALERT] Alert with ID ${alertId} not found`);
+    return false;
+  }
+  
+  if (existingAlert.dismissed === 1) {
+    console.warn(`[ALERT] Alert with ID ${alertId} already dismissed`);
+    return false;
+  }
+  
+  // Update the alert
+  const updateQuery = db.prepare(`
     UPDATE alerts 
-    SET dismissed = 1, dismissed_at = CURRENT_TIMESTAMP 
-    WHERE id = ? AND dismissed = 0
+    SET dismissed = 1, dismissed_at = CURRENT_TIMESTAMP, auto_dismissed = ?, read = ? 
+    WHERE id = ?
   `);
-  const result = query.run(alertId);
+  const result = updateQuery.run(autoDismissed ? 1 : 0, markAsRead ? 1 : 0, alertId);
+  
+  if (result.changes > 0) {
+    console.log(`[ALERT] Successfully dismissed alert ${alertId} (auto: ${autoDismissed}, read: ${markAsRead})`);
+  }
+  
   return result.changes > 0;
 }
 

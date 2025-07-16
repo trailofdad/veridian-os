@@ -120,14 +120,14 @@ function getActiveAlerts() {
     return query.all();
 }
 // Function to dismiss an alert
-function dismissAlert(alertId) {
+function dismissAlert(alertId, autoDismissed = false) {
     const db = (0, db_1.getDbInstance)();
     const query = db.prepare(`
     UPDATE alerts 
-    SET dismissed = 1, dismissed_at = CURRENT_TIMESTAMP 
+    SET dismissed = 1, dismissed_at = CURRENT_TIMESTAMP, auto_dismissed = ? 
     WHERE id = ? AND dismissed = 0
   `);
-    const result = query.run(alertId);
+    const result = query.run(autoDismissed ? 1 : 0, alertId);
     return result.changes > 0;
 }
 // Function to get alert history

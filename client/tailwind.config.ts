@@ -100,6 +100,33 @@ const config: Config = {
         "tremor-title": ["1.125rem", { lineHeight: "1.75rem" }],
         "tremor-metric": ["1.875rem", { lineHeight: "2.25rem" }],
       },
+      animation: {
+        'swipe-right': 'swipeRight 0.3s ease-out forwards',
+        'particle-fade': 'particleFade 0.6s ease-out forwards',
+      },
+      keyframes: {
+        swipeRight: {
+          '0%': { transform: 'translateX(0)', opacity: '1' },
+          '100%': { transform: 'translateX(100%)', opacity: '0' },
+        },
+        particleFade: {
+          '0%': { 
+            opacity: '1',
+            transform: 'scale(1)',
+            filter: 'blur(0px)',
+          },
+          '50%': {
+            opacity: '0.5',
+            transform: 'scale(1.1)',
+            filter: 'blur(1px)',
+          },
+          '100%': { 
+            opacity: '0',
+            transform: 'scale(0.9)',
+            filter: 'blur(2px)',
+          },
+        },
+      },
     },
   },
   safelist: [

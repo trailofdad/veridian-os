@@ -201,11 +201,46 @@ export const Dashboard = () => {
   // Prepare data for charts
   const prepareChartData = (sensorType: string) => {
     const data = historicalData[sensorType] || [];
-    return data.map(item => ({
-      timestamp: new Date(item.timestamp).toLocaleTimeString(),
-      value: item.value,
-      [sensorType]: item.value
-    }));
+    
+    // Return empty array if no data
+    if (data.length === 0) return [];
+    
+    // Get the selected time period to determine proper time formatting
+    const selectedPeriod = TIME_PERIODS.find(p => p.value === selectedTimePeriod);
+    const hours = selectedPeriod?.hours || 1;
+    
+    return data.map(item => {
+      let timeLabel;
+      const date = new Date(item.timestamp);
+      
+      // Format timestamp based on time period
+      if (hours <= 3) {
+        // For short periods, show time only
+        timeLabel = date.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+      } else if (hours <= 24) {
+        // For day periods, show hour and minute
+        timeLabel = date.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+      } else {
+        // For longer periods, show month/day and hour
+        timeLabel = date.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          hour: '2-digit' 
+        });
+      }
+      
+      return {
+        timestamp: timeLabel,
+        value: item.value,
+        [sensorType]: item.value
+      };
+    });
   };
 
 
@@ -395,22 +430,28 @@ export const Dashboard = () => {
                         const sensorReading = sensorData.find(s => s.sensor_type === sensorType);
                         
                         return (
-                          <Card key={`chart-${sensorType}`} className="bg-gray-50 dark:bg-gray-800">
+                          <Card key={`chart-${sensorType}`} className="bg-gray-50 dark:bg-gray-800 min-h-[320px]">
                             <Title className="text-tremor-content-strong dark:text-dark-tremor-content-strong">
                               {name} Trends
                             </Title>
                             {chartData.length > 0 ? (
-                              <AreaChart
-                                className="mt-4 h-72"
-                                data={chartData}
-                                index="timestamp"
-                                categories={[sensorType]}
-                                colors={[color]}
-                                valueFormatter={(value) => `${value.toFixed(1)} ${sensorReading?.unit || ''}`}
-                                yAxisWidth={60}
-                              />
+                              <div className="mt-4 w-full h-72 min-w-0">
+                                <AreaChart
+                                  className="w-full h-full"
+                                  data={chartData}
+                                  index="timestamp"
+                                  categories={[sensorType]}
+                                  colors={[color]}
+                                  valueFormatter={(value) => `${value.toFixed(1)} ${sensorReading?.unit || ''}`}
+                                  yAxisWidth={60}
+                                  showXAxis={true}
+                                  showYAxis={true}
+                                  showGridLines={true}
+                                  autoMinValue={true}
+                                />
+                              </div>
                             ) : (
-                              <div className="flex items-center justify-center h-72">
+                              <div className="flex items-center justify-center h-72 mt-4">
                                 <Text className="text-tremor-content-subtle dark:text-dark-tremor-content-subtle">
                                   No data available for this time period
                                 </Text>

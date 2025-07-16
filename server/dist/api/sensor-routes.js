@@ -170,11 +170,12 @@ router.get('/alerts', (req, res) => {
 // Endpoint to dismiss an alert
 router.post('/alerts/:id/dismiss', (req, res) => {
     const alertId = parseInt(req.params.id);
+    const { auto_dismissed } = req.body;
     if (isNaN(alertId)) {
         return res.status(400).json({ message: 'Invalid alert ID.' });
     }
     try {
-        const success = (0, plant_health_1.dismissAlert)(alertId);
+        const success = (0, plant_health_1.dismissAlert)(alertId, auto_dismissed === true);
         if (success) {
             res.json({ message: 'Alert dismissed successfully.' });
         }

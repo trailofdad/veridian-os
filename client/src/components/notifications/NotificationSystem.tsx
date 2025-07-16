@@ -3,7 +3,7 @@ import { Text, Button } from '@tremor/react';
 import { apiCall, API_ENDPOINTS } from '@/lib/api-config';
 import { formatToADT } from '@/utils/format-date';
 import { createElement } from 'react';
-import { RiAlertFill, RiCloseLine } from '@remixicon/react';
+import { RiAlertFill, RiCheckLine } from '@remixicon/react';
 
 interface ServerAlert {
   id: number;
@@ -26,15 +26,42 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = () => {
   const [latestAlert, setLatestAlert] = useState<ServerAlert | null>(null);
   const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState(true);
+  const [animationClass, setAnimationClass] = useState('');
+  const [autoDismissTimeout, setAutoDismissTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const fetchLatestAlert = async () => {
     try {
       const response = await apiCall(API_ENDPOINTS.LATEST_ALERT);
       const alert = await response.json();
-      setLatestAlert(alert);
-      setVisible(true); // Show toast when new alert is fetched
+      
+      // Clear any existing timeout
+      if (autoDismissTimeout) {
+        clearTimeout(autoDismissTimeout);
+      }
+      
+      if (alert && alert.id) {
+        // Only update if it's a different alert to prevent race conditions
+        if (!latestAlert || latestAlert.id !== alert.id) {
+          setLatestAlert(alert);
+          setVisible(true); // Show toast when new alert is fetched
+          setAnimationClass(''); // Reset animation class for new alert
+          
+          // Set auto-dismiss after 10 seconds
+          const timeout = setTimeout(() => {
+            handleAutoDismiss(alert.id);
+          }, 10000);
+          setAutoDismissTimeout(timeout);
+        }
+      } else {
+        // No alert available, hide the notification
+        setLatestAlert(null);
+        setVisible(false);
+        setAnimationClass('');
+      }
     } catch (error) {
       console.error('Error fetching latest alert:', error);
+      setLatestAlert(null);
+      setVisible(false);
     } finally {
       setLoading(false);
     }
@@ -44,24 +71,82 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = () => {
     fetchLatestAlert();
     // Poll for updates every 30 seconds
     const interval = setInterval(fetchLatestAlert, 30000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (autoDismissTimeout) {
+        clearTimeout(autoDismissTimeout);
+      }
+    };
   }, []);
 
   const handleDismissAlert = async (alertId: number) => {
     try {
-      await apiCall(API_ENDPOINTS.DISMISS_ALERT(alertId), {
-        method: 'POST',
-      });
-      // Hide toast and refresh data after dismissing
-      setVisible(false);
-      await fetchLatestAlert();
+      // Clear auto-dismiss timeout since user manually dismissed
+      if (autoDismissTimeout) {
+        clearTimeout(autoDismissTimeout);
+        setAutoDismissTimeout(null);
+      }
+      
+      // Apply swipe right animation
+      setAnimationClass('animate-swipe-right');
+      
+      // Wait for animation to complete, then dismiss and refresh
+      setTimeout(async () => {
+        try {
+          const response = await apiCall(API_ENDPOINTS.DISMISS_ALERT(alertId), {
+            method: 'POST',
+            body: JSON.stringify({ mark_as_read: true }),
+          });
+          setVisible(false);
+          await fetchLatestAlert();
+        } catch (error) {
+          console.error('Error dismissing alert:', error);
+          // If the alert is already dismissed (404), just hide the notification
+          if (error instanceof Error && error.message.includes('404')) {
+            setVisible(false);
+            await fetchLatestAlert();
+          }
+        }
+      }, 300);
     } catch (error) {
-      console.error('Error dismissing alert:', error);
+      console.error('Error starting dismiss animation:', error);
     }
   };
 
-  const handleDismissToast = () => {
-    setVisible(false);
+  const handleAutoDismiss = async (alertId: number) => {
+    try {
+      // Apply particle fade animation
+      setAnimationClass('animate-particle-fade');
+      
+      // Wait for animation to complete, then auto-dismiss and refresh
+      setTimeout(async () => {
+        try {
+          await apiCall(API_ENDPOINTS.DISMISS_ALERT(alertId), {
+            method: 'POST',
+            body: JSON.stringify({ auto_dismissed: true }),
+          });
+          setVisible(false);
+          setAutoDismissTimeout(null);
+          await fetchLatestAlert();
+        } catch (error) {
+          console.error('Error auto-dismissing alert:', error);
+          // If the alert is already dismissed (404), just hide the notification
+          if (error instanceof Error && error.message.includes('404')) {
+            setVisible(false);
+            setAutoDismissTimeout(null);
+            await fetchLatestAlert();
+          }
+        }
+      }, 600); // Particle fade animation is longer (0.6s)
+    } catch (error) {
+      console.error('Error starting auto-dismiss animation:', error);
+    }
+  };
+
+  const handleManualDismiss = () => {
+    if (latestAlert) {
+      handleDismissAlert(latestAlert.id);
+    }
   };
 
   if (loading || !latestAlert || !visible) {
@@ -69,7 +154,7 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = () => {
   }
 
   return (
-    <div className="fixed top-4 right-4 z-50 w-80 animate-in slide-in-from-top-2 duration-300">
+    <div className={`fixed top-4 right-4 z-50 w-80 animate-in slide-in-from-top-2 duration-300 ${animationClass}`}>
       <div className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 backdrop-blur-md border border-purple-300/20 rounded-lg p-4 shadow-lg">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-2">
@@ -87,19 +172,12 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = () => {
             </div>
           </div>
           <div className="flex space-x-1 ml-2">
-            <Button
-              size="xs"
-              variant="light"
-              className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 border-purple-400/30"
-              onClick={() => handleDismissAlert(latestAlert.id)}
-            >
-              Dismiss
-            </Button>
             <button
-              onClick={handleDismissToast}
+              onClick={handleManualDismiss}
               className="p-1 hover:bg-purple-600/20 rounded transition-colors"
+              title="Mark as read"
             >
-              {createElement(RiCloseLine, { className: "w-4 h-4 text-purple-300" })}
+              {createElement(RiCheckLine, { className: "w-4 h-4 text-purple-300" })}
             </button>
           </div>
         </div>
