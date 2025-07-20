@@ -1,48 +1,36 @@
-# Multi-stage build for Next.js client
-# Use Node 20 for better ARM64 compatibility on Pi 4
-FROM node:22-alpine AS base
+# Simple single-stage build for Next.js client
+FROM node:22-alpine AS runner
 
-# Install dependencies only when needed
-FROM base AS deps
+WORKDIR /app
+
+ENV NODE_ENV=development
+
+# Install runtime dependencies
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* ./
-COPY client/package.json ./client/
-RUN npm ci
-
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/client/node_modules ./client/node_modules
-COPY . .
-
-# Build the Next.js application
-RUN npm run build --workspace=client
-
-# Production image, copy all the files and run Next.js
-FROM base AS runner
-WORKDIR /app
-
-ENV NODE_ENV=production
-# Disable Next.js telemetry
-ENV NEXT_TELEMETRY_DISABLED=1
-
+# Create app user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy the built application
-COPY --from=builder /app/client/public ./client/public
+# Copy package files
+COPY package.json package-lock.json* ./
+COPY client/package.json ./client/
 
-# Set the correct permission for prerender cache
-RUN mkdir -p ./client/.next
-RUN chown nextjs:nodejs ./client/.next
+# Install ALL dependencies (including dev deps for build)
+RUN npm ci
 
-# Automatically leverage output traces to reduce image size
-COPY --from=builder --chown=nextjs:nodejs /app/client/.next/standalone ./client/
-COPY --from=builder --chown=nextjs:nodejs /app/client/.next/static ./client/.next/static
+# Copy source code
+COPY client ./client
+
+# Build Next.js application
+RUN npm run build --workspace=client
+
+# Switch to production and clean up dev dependencies
+ENV NODE_ENV=production
+RUN npm prune --production
+
+# Create proper permissions
+RUN mkdir -p ./client/.next && chown nextjs:nodejs ./client/.next
 
 USER nextjs
 
@@ -51,4 +39,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "client/server.js"]
+CMD ["node", "client/.next/standalone/client/server.js"]

@@ -1,59 +1,42 @@
-# Multi-stage build for Node.js server
-# Use consistent Node version across services
-FROM node:22-alpine AS base
+# Single-stage build for Node.js server
+FROM node:22-alpine AS runner
+WORKDIR /app
 
-# Install dependencies needed for native modules (serialport, better-sqlite3)
-FROM base AS deps
+ENV NODE_ENV=development
+
+# Install runtime dependencies for native modules and system packages
 RUN apk add --no-cache \
+    dumb-init \
+    eudev \
     libc6-compat \
     python3 \
     make \
     g++ \
     linux-headers \
     eudev-dev
-WORKDIR /app
-
-# Install dependencies
-COPY package.json package-lock.json* ./
-COPY server/package.json ./server/
-RUN npm ci
-
-# Build stage
-FROM base AS builder
-WORKDIR /app
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    linux-headers \
-    eudev-dev
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/server/node_modules ./server/node_modules
-COPY . .
-
-# Build the TypeScript application
-RUN npm run build --workspace=server
-
-# Production stage
-FROM base AS runner
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-# Install runtime dependencies for serialport and sqlite3
-RUN apk add --no-cache \
-    dumb-init \
-    eudev
 
 # Create app user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nodejs
 
-# Copy built application
-COPY --from=builder --chown=nodejs:nodejs /app/server/dist ./server/dist
-COPY --from=builder --chown=nodejs:nodejs /app/server/node_modules ./server/node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/server/package.json ./server/package.json
+# Copy package files
+COPY package.json package-lock.json* ./
+COPY server/package.json ./server/
+
+# Install ALL dependencies 
+RUN npm ci
+
+# Copy source code
+COPY server/src ./server/src
+COPY server/tsconfig.json ./server/
+
+# Build TypeScript using npx
+RUN npx --workspace=server tsc
+
+# Switch to production mode and clean up
+ENV NODE_ENV=production
+RUN npm prune --production && \
+    apk del python3 make g++ linux-headers eudev-dev
 
 # Create directory for SQLite database
 RUN mkdir -p /app/data && chown nodejs:nodejs /app/data
