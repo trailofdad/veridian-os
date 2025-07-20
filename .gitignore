@@ -6,3 +6,4 @@ out
 *.db
 plant_data.*.last-build-hash
 server/dist/
+.last-build-hash
