@@ -1,9 +1,9 @@
 // server/src/server.ts
 import express from 'express';
-import cors from 'cors'; // For development, allow your Next.js app to communicate
+import cors from 'cors'; // For development
 import path from 'path';
-import { initializeDatabase, getDbInstance } from './db/db'; // Your DB setup
-import sensorRoutes from './api/sensor-routes'; // <--- Import your new router
+import { initializeDatabase, getDbInstance } from './db/db';
+import sensorRoutes from './api/sensor-routes';
 
 const app = express();
 const port = 3001; // Or any other port you prefer for your API
@@ -11,21 +11,20 @@ const port = 3001; // Or any other port you prefer for your API
 // --- Middleware ---
 // Enable CORS. In production, restrict this to your specific client origin.
 app.use(cors({
-    origin: 'http://localhost:3000', // Allow your Next.js dev server (usually port 3000)
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
     credentials: true,
 }));
 app.use(express.json()); // Essential for parsing JSON request bodies (from serial reader script and client)
 
 // --- API Routes ---
-// Mount your sensorRoutes under the '/api' base path
-// All routes defined in sensor-routes.ts will now be prefixed with '/api'
+// All routes defined in sensor-routes.ts will be prefixed with '/api'
 app.use('/api', sensorRoutes);
 
 // --- Serve Static Client Files (Optional for local development, critical for production on Pi) ---
 // In a production environment on the Pi, Nginx/Caddy would often serve the static
 // Next.js build files directly. For simpler local hosting, Express can do it.
-// Ensure this path is correct for your monorepo structure:
+// Ensure this path is correct for the monorepo structure:
 // veridian-os/server/src -> veridian-os/client/out
 const clientBuildPath = path.resolve(__dirname, '../../client/out'); // Next.js exports to 'out' directory for static builds
 app.use(express.static(clientBuildPath));

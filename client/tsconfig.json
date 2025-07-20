@@ -10,7 +10,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
-    "noEmit": true,
+    "noEmit": true, // Next.js handles emission
     "incremental": true,
     "module": "esnext",
     "esModuleInterop": true,
@@ -40,30 +40,3 @@
     "node_modules"
   ]
 }
-
-// {
-//   "compilerOptions": {
-//     "lib": ["dom", "dom.iterable", "esnext"],
-//     "allowJs": true,
-//     "skipLibCheck": true,
-//     "strict": true,
-//     "noEmit": true, // Next.js handles emission
-//     "esModuleInterop": true,
-//     "module": "esnext", // Important for modern JS modules
-//     "moduleResolution": "bundler", // Or "node" for older setups, "bundler" is recommended for Next.js 13+
-//     "resolveJsonModule": true,
-//     "isolatedModules": true, // Ensures files can be compiled independently
-//     "jsx": "preserve", // Critical for React JSX
-//     "incremental": true,
-//     "plugins": [
-//       {
-//         "name": "next"
-//       }
-//     ],
-//     "paths": {
-//       "@/*": ["./*"]
-//     }
-//   },
-//   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-//   "exclude": ["node_modules"]
-// }

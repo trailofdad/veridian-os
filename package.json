@@ -10,7 +10,10 @@
     "dev:docker": "./scripts/dev.sh",
     "dev:docker:mock": "./scripts/dev-mock.sh",
     "prod:docker": "./scripts/prod.sh",
+    "deploy:pi": "./scripts/deploy-pi.sh",
+    "verify:pi": "./scripts/verify-swc.sh",
     "build": "npm run build --workspace=client && npm run build --workspace=server",
+    "build:pi": "DOCKER_DEFAULT_PLATFORM=linux/arm64 npm run build",
     "start:server": "npm start --workspace=server",
     "start:client": "npm start --workspace=client"
   },
