@@ -4,4 +4,5 @@ package-lock.json
 .DS_Store
 out
 *.db
-plant_data.*
+plant_data.*.last-build-hash
+server/dist/

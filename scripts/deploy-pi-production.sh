@@ -13,18 +13,39 @@ if [ ! -f "package.json" ]; then
     exit 1
 fi
 
-# Clean previous installations to avoid compatibility issues
-echo "🧹 Cleaning previous installations..."
-echo "  - Removing root node_modules and package-lock.json"
-rm -rf node_modules package-lock.json
+# Check if there are any changes since last successful build
+NEED_CLEAN=false
 
-echo "  - Removing client node_modules and package-lock.json"
-rm -rf client/node_modules client/package-lock.json
+if [ ! -f ".last-build-hash" ]; then
+    echo "🔍 No previous build detected, will perform clean build"
+    NEED_CLEAN=true
+else
+    # Get current git hash and compare with last build
+    CURRENT_HASH=$(git rev-parse HEAD 2>/dev/null || echo "no-git")
+    LAST_HASH=$(cat .last-build-hash 2>/dev/null || echo "no-hash")
+    
+    if [ "$CURRENT_HASH" != "$LAST_HASH" ]; then
+        echo "🔍 Code changes detected (${LAST_HASH:0:7} → ${CURRENT_HASH:0:7}), will perform clean build"
+        NEED_CLEAN=true
+    else
+        echo "🔍 No code changes detected, skipping clean (using existing node_modules)"
+    fi
+fi
 
-echo "  - Removing server node_modules and package-lock.json"
-rm -rf server/node_modules server/package-lock.json
+# Clean previous installations only if needed
+if [ "$NEED_CLEAN" = true ]; then
+    echo "🧹 Cleaning previous installations..."
+    echo "  - Removing root node_modules and package-lock.json"
+    rm -rf node_modules package-lock.json
 
-# Install dependencies
+    echo "  - Removing client node_modules and package-lock.json"
+    rm -rf client/node_modules client/package-lock.json
+
+    echo "  - Removing server node_modules and package-lock.json"
+    rm -rf server/node_modules server/package-lock.json
+fi
+
+# Install/update dependencies
 echo "📦 Installing/updating dependencies..."
 npm install
 
@@ -41,12 +62,19 @@ npm run build --workspace=server
 # Try to build client (but don't fail if it doesn't work)
 echo "🔧 Attempting to build client..."
 if npm run build --workspace=client; then
+
+    # Copy static files for standalone mode
+    cp -r client/.next/static client/.next/standalone/client/.next/static
     echo "✅ Client built successfully"
     CLIENT_MODE="production"
 else
     echo "⚠️ Client build failed, falling back to development mode"
     CLIENT_MODE="development"
 fi
+
+# Save successful build hash
+CURRENT_HASH=$(git rev-parse HEAD 2>/dev/null || echo "no-git")
+echo "$CURRENT_HASH" > .last-build-hash
 
 echo ""
 echo "🚀 Starting Veridian OS in production mode..."
@@ -65,7 +93,7 @@ SERVER_PID=$!
 cd ../client
 if [ "$CLIENT_MODE" = "production" ]; then
     echo "🌐 Starting client in production mode..."
-    node .next/standalone/client/server.js &
+    HOSTNAME=0.0.0.0 PORT=3000 node .next/standalone/client/server.js &
 else
     echo "🌐 Starting client in development mode..."
     npm run dev &
@@ -89,4 +117,3 @@ trap cleanup SIGINT SIGTERM
 
 # Wait for processes
 wait
-

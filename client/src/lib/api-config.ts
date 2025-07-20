@@ -6,12 +6,7 @@ export const getApiBaseUrl = (): string => {
     // Browser environment - use the correct port mapping
     const { protocol, hostname, port } = window.location;
     
-    // If running through nginx (production), use the same host
-    if (protocol === 'https:' || hostname !== 'localhost') {
-      return `${protocol}//${hostname}`;
-    }
-    
-    // Local development: if client is on 3000, server is on 3001
+    // If client is on port 3000, server is on 3001 (both local and network access)
     if (port === '3000') {
       return `${protocol}//${hostname}:3001`;
     }
