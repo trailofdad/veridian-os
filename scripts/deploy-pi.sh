@@ -38,23 +38,23 @@ fi
 
 # Build images with explicit platform targeting for Pi 4
 echo "🔧 Building ARM64 containers for Raspberry Pi 4..."
-docker-compose -f docker-compose.prod.yml build \
+docker compose -f docker-compose.prod.yml build \
     --build-arg BUILDPLATFORM=linux/arm64 \
     --build-arg TARGETPLATFORM=linux/arm64
 
 # Start production containers
 echo "🚀 Starting production containers..."
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 
 echo "✅ Raspberry Pi 4 deployment complete!"
 echo "🌐 Application: http://localhost (via nginx)"
 echo "🌐 Client direct: http://localhost:3000"  
 echo "🔌 Server direct: http://localhost:8000"
-echo "📊 To view logs: docker-compose -f docker-compose.prod.yml logs -f"
-echo "🛑 To stop: docker-compose -f docker-compose.prod.yml down"
+echo "📊 To view logs: docker compose -f docker-compose.prod.yml logs -f"
+echo "🛑 To stop: docker compose -f docker-compose.prod.yml down"
 echo ""
 echo "🔍 Container status:"
-docker-compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml ps
 
 echo ""
 echo "💡 Pi-specific optimizations applied:"

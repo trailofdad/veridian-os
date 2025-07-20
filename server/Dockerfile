@@ -1,6 +1,6 @@
 # Multi-stage build for Node.js server
 # Use consistent Node version across services
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 
 # Install dependencies needed for native modules (serialport, better-sqlite3)
 FROM base AS deps
