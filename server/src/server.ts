@@ -11,7 +11,7 @@ const port = 3001; // Or any other port you prefer for your API
 // --- Middleware ---
 // Enable CORS. In production, restrict this to your specific client origin.
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', /^http:\/\/192\.168\.\d+\.\d+:3000$/],
     methods: ['GET', 'POST'],
     credentials: true,
 }));
@@ -46,8 +46,8 @@ initializeDatabase().then(() => {
     console.log('Database initialized successfully.');
 
     // Start the Express server
-    app.listen(port, () => {
-        console.log(`VeridianOS API server running on http://localhost:${port}`);
+    app.listen(port, '0.0.0.0', () => {
+        console.log(`VeridianOS API server running on http://0.0.0.0:${port}`);
         console.log(`Serving client from ${clientBuildPath}`);
     });
 }).catch(err => {
