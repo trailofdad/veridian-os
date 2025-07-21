@@ -1,83 +1,77 @@
 # VeridianOS Development Guide
 
-This guide covers the different ways to develop and run VeridianOS based on your needs.
+This guide covers the different ways to develop VeridianOS using local development and Docker workflows.
 
 ## 🚀 Development Options
 
 ### 1. **Local Development (Recommended for day-to-day development)**
-Perfect for when you want to develop without Docker overhead and don't have an Arduino connected.
+Perfect for fast iteration without Docker overhead. Uses concurrent processes for both client and server.
 
 ```bash
-# Start local development (auto-detects Arduino or falls back to mock data)
-./scripts/dev-local.sh
-
-# Or manually:
-npm run dev:local
+# Start both client and server with hot reloading
+npm run dev:local:concurrent
 ```
 
-**Features:**
-- ✅ Auto-detects Arduino serial port
-- ✅ Falls back to mock data if no Arduino found
-- ✅ Fast development cycle (no Docker rebuild)
-- ✅ Direct access to logs and debugging
+**What it does:**
+- Starts Next.js client on port 3000 with hot reloading
+- Starts TypeScript server on port 3001 with nodemon
+- Auto-detects Arduino or falls back to mock data
+- Direct access to logs and debugging tools
+
+**Access:**
 - 🌐 **Client:** http://localhost:3000
 - 🔌 **Server:** http://localhost:3001
 
-### 2. **Docker Development with Mock Data**
-Great for testing the full Docker environment with consistent mock data.
+### 2. **Docker Development**
+For testing the full containerized environment with volume mounts for live development.
 
 ```bash
-# Start Docker development with mock Arduino service
-./scripts/dev-mock.sh
+# Start development containers
+npm run docker:up:dev
 
-# Or manually:
-docker-compose -f docker-compose.dev.yml up --build
+# View logs
+npm run docker:logs:dev
+
+# Stop containers
+npm run docker:down:dev
 ```
 
 **Features:**
-- ✅ Full Docker environment
+- ✅ Containerized development environment
 - ✅ Mock Arduino service (no hardware needed)
-- ✅ Consistent across team members
-- ✅ Live reload with volume mounts
-- 🌐 **Client:** http://localhost:3000
-- 🔌 **Server:** http://localhost:8000
+- ✅ Hot reloading with volume mounts
+- ✅ Consistent across different machines
+- ✅ Tests Docker configuration
 
-### 3. **Docker Development with Real Arduino**
-For testing actual hardware integration in a containerized environment.
+**Access:**
+- 🌐 **Client:** http://localhost:3000
+- 🔌 **Server:** http://localhost:3001
+
+### 3. **Docker Production**
+For testing production builds and deployment configuration.
 
 ```bash
-# Start Docker development with real Arduino support
-./scripts/dev.sh
+# Build and start production containers
+npm run docker:build:all
+npm run docker:up:prod
 
-# Or manually:
-docker-compose up --build
+# View production logs
+npm run docker:logs:prod
+
+# Stop production containers
+npm run docker:down:prod
 ```
 
 **Features:**
-- ✅ Real Arduino hardware integration
-- ✅ USB device passthrough
-- ✅ Production-like environment
-- ⚠️ Requires Arduino connected to supported port
-- 🌐 **Client:** http://localhost:3000
-- 🔌 **Server:** http://localhost:8000
-
-### 4. **Production Deployment**
-For deploying to your Pi 4 or production server.
-
-```bash
-# Deploy to production (Pi 4)
-./scripts/prod.sh
-
-# Or manually:
-docker-compose -f docker-compose.prod.yml up --build -d
-```
-
-**Features:**
-- ✅ Production-optimized builds
-- ✅ Nginx reverse proxy
-- ✅ SSL support (optional)
+- ✅ Production-optimized Next.js builds (standalone)
+- ✅ Compiled TypeScript server
+- ✅ Next.js handles static file serving
 - ✅ Auto-restart on failure
-- 🌐 **Application:** http://localhost (via nginx)
+- ✅ Network accessible (0.0.0.0)
+
+**Access:**
+- 🌐 **Client:** http://localhost:3000
+- 🔌 **Server:** http://localhost:3001
 
 ## 📡 Serial Port Detection
 
@@ -90,37 +84,40 @@ If no Arduino is detected, it automatically falls back to mock data generation.
 
 ## 🛠 Development Workflow
 
-### For Frontend Development:
+### **Recommended Workflow**
 ```bash
-./scripts/dev-local.sh  # Mock data, fast iteration
+# Day-to-day development (fastest)
+npm run dev:local:concurrent
+
+# Testing Docker environment
+npm run docker:up:dev
+
+# Testing production builds
+npm run docker:build:all
+npm run docker:up:prod
 ```
 
-### For Backend Development:
-```bash
-./scripts/dev-local.sh  # Direct server access, easy debugging
-```
-
-### For Full Stack Testing:
-```bash
-./scripts/dev-mock.sh   # Docker environment, consistent data
-```
-
-### For Hardware Integration:
-```bash
-./scripts/dev.sh        # Real Arduino, full system test
-```
+### **When to Use Each Approach**
+- **Local Development**: Fast iteration, debugging, most frontend/backend work
+- **Docker Development**: Testing containerized environment, team consistency
+- **Docker Production**: Final testing before deployment, production validation
 
 ## 🔧 Configuration
 
-### Environment Variables
-- `NEXT_PUBLIC_API_URL`: Override API base URL
+### **Environment Variables**
+- `NEXT_PUBLIC_API_URL`: Override API base URL (optional)
 - `NODE_ENV`: Set to 'development' or 'production'
 - `DATABASE_PATH`: SQLite database file path
+- `NEXT_TELEMETRY_DISABLED`: Disable Next.js telemetry
 
-### Port Configuration
-- **Local Development:** Client(3000) → Server(3001)
-- **Docker Development:** Client(3000) → Server(8000→3001)
-- **Production:** Nginx(80) → Client(3000) + Server(8000→3001)
+### **Port Configuration (Standardized)**
+- **All Environments**: Client(3000) → Server(3001)
+- **Network Access**: Same ports accessible from any device on LAN
+
+### **API Configuration**
+The client automatically detects the correct API endpoint:
+- **Browser**: Uses current hostname + port 3001
+- **SSR**: Uses Docker service name or fallback URL
 
 ## 📊 Plant Health Monitoring
 
@@ -154,19 +151,24 @@ system_profiler SPUSBDataType  # macOS
 
 ### Docker Issues
 ```bash
-# Rebuild containers
-docker-compose down
-docker-compose up --build
+# Rebuild development containers
+npm run docker:down:dev
+npm run docker:up:dev
+
+# Rebuild production containers
+npm run docker:down:prod
+npm run docker:build:all
+npm run docker:up:prod
 
 # Check container logs
-docker-compose logs -f server
-docker-compose logs -f client
+npm run docker:logs:dev    # Development
+npm run docker:logs:prod   # Production
 ```
 
 ### API Connection Issues
 - **Local Development:** Check server is running on port 3001
-- **Docker Development:** Check server is mapped to port 8000
-- **Production:** Check nginx configuration
+- **Docker Development:** Check server is accessible on port 3001
+- **Production:** Check API endpoints are responding on port 3001
 
 ## 📝 Adding New Features
 
