@@ -5,8 +5,9 @@ import formsPlugin from "@tailwindcss/forms";
 const config: Config = {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
-    // Path to Tremor module - corrected path since node_modules is at root level
+    // Path to Tremor module - check both possible locations
     "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
+    "../node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     transparent: "transparent",
