@@ -1,22 +1,20 @@
 // API Configuration for different environments
-
 export const getApiBaseUrl = (): string => {
   // Check if we're running in the browser
   if (typeof window !== 'undefined') {
-    // Browser environment - use the correct port mapping
-    const { protocol, hostname, port } = window.location;
-    
-    // If client is on port 3000, server is on 3001 (both local and network access)
-    if (port === '3000') {
-      return `${protocol}//${hostname}:3001`;
+    // Browser environment - use environment variable if set
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (apiUrl) {
+      return apiUrl;
     }
-    
-    // Docker development: use localhost:8000 (Docker mapped port)
-    return `${protocol}//${hostname}:8000`;
+
+    // Use same hostname as client, port 3001 for API
+    const { protocol, hostname } = window.location;
+    return `${protocol}//${hostname}:3001`;
   }
   
-  // Server-side rendering fallback
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  // Server-side rendering fallback for Docker internal communication
+  return process.env.NEXT_PUBLIC_API_URL || 'http://server:3001';
 };
 
 export const API_ENDPOINTS = {

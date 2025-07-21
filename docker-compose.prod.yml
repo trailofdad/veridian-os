@@ -27,7 +27,7 @@ services:
         - linux/arm64  # Raspberry Pi 4 compatibility
     image: veridian-os-server:latest
     ports:
-      - "8000:3001"
+      - "3001:3001"
     environment:
       - NODE_ENV=production
       - DATABASE_PATH=/app/data/veridian.db

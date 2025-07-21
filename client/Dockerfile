@@ -50,7 +50,7 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/client/.next/standalone ./
 
 # Copy static files
-COPY --from=builder --chown=nextjs:nodejs /app/client/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/client/.next/static ./client/.next/static
 
 USER nextjs
 

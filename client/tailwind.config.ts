@@ -6,7 +6,7 @@ const config: Config = {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
     // Path to Tremor module - corrected path since node_modules is at root level
-    "../node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     transparent: "transparent",
