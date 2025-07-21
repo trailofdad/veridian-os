@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { formatToADT } from "@/utils/format-date";
 import { 
