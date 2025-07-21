@@ -29,15 +29,16 @@ RUN \
 FROM base AS builder
 WORKDIR /app
 
-# Copy node_modules from deps stage
+# Copy node_modules and package files from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
+COPY --from=deps /app/server/package.json ./server/package.json
 
 # Copy source code
 COPY server/src ./server/src
 COPY server/tsconfig.json ./server/
 
-# Build TypeScript
+# Build TypeScript using workspace command
 RUN npx --workspace=server tsc
 
 # 3. Production image, copy all the files and run server

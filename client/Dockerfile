@@ -23,9 +23,10 @@ RUN \
 FROM base AS builder
 WORKDIR /app
 
-# Copy node_modules from deps stage
+# Copy node_modules and package files from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json ./package.json
+COPY --from=deps /app/client/package.json ./client/package.json
 
 # Copy all source code
 COPY client ./client
