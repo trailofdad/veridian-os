@@ -5,9 +5,13 @@ services:
       dockerfile: client/Dockerfile
       target: development
     volumes:
-      - ./client:/app/client
-      - /app/client/node_modules
-      - /app/client/.next
+      - ./client/src:/app/client/src  # Mount source files for hot reload
+      - ./client/package.json:/app/client/package.json  # Mount package.json
+      - ./client/next.config.js:/app/client/next.config.js  # Next.js config
+      - ./client/tailwind.config.ts:/app/client/tailwind.config.ts  # Tailwind config
+      - ./client/tsconfig.json:/app/client/tsconfig.json  # TypeScript config
+      - ./client/postcss.config.cjs:/app/client/postcss.config.cjs  # PostCSS config
+      - ./package.json:/app/package.json  # Root package.json for workspace
     ports:
       - "3000:3000"
     environment:
@@ -25,8 +29,8 @@ services:
       dockerfile: server/Dockerfile
       target: development
     volumes:
-      - ./server:/app/server
-      - /app/server/node_modules
+      - .:/app  # Mount entire workspace for server
+      - server_node_modules:/app/node_modules  # Preserve container's node_modules
       - ./data:/app/data
     ports:
       - "3001:3001"
@@ -38,6 +42,8 @@ services:
       - veridian-network
 
 volumes:
+  server_node_modules:
+    driver: local
   data:
     driver: local
 

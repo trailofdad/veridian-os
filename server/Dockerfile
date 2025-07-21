@@ -31,6 +31,10 @@ RUN \
 FROM deps AS development
 WORKDIR /app
 
+# Copy source code and TypeScript config for development
+COPY server/src ./server/src
+COPY server/tsconfig.json ./server/
+
 ENV NODE_ENV=development
 
 EXPOSE 3001
