@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-01-21
+
+### Added
+- **Multi-architecture Docker deployment** with support for development and production stages
+- **Complete containerization** of both client and server applications
+- **Docker Compose configurations** for development (`docker-compose.dev.yml`) and production (`docker-compose.prod.yml`) environments
+- **Cross-platform deployment scripts** maintaining monorepo structure
+- **Production-ready Docker setup** with optimized builds for multiple architectures
+- **Streamlined deployment workflow** via Docker containers
+- **Development and production Docker targets** for efficient builds
+- **Container orchestration** while preserving monorepo benefits
+
+### Technical Improvements
+- **Dockerfile optimization** for both client (Next.js) and server (Node.js/Express) applications
+- **Multi-stage Docker builds** for reduced production image sizes
+- **Docker networking** configuration for seamless client-server communication
+- **Environment-specific configurations** for development vs production deployments
+- **Container health checks** and proper service dependencies
+- **Volume management** for persistent data storage in containerized environments
+
 ## [0.1.0] - 2025-01-16
 
 ### Added
