@@ -19,6 +19,9 @@ RUN \
   else echo "No lockfile found, running npm install" && npm install; \
   fi
 
+# Install the correct SWC binary for ARM64/Alpine
+RUN npm install --save-dev @next/swc-linux-arm64-musl
+
 # 2. Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
@@ -31,7 +34,7 @@ COPY --from=deps /app/client/package.json ./client/package.json
 # Copy all source code
 COPY client ./client
 
-# Build the application
+# Build the application with ARM64 SWC support
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build --workspace=client
