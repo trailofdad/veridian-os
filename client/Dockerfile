@@ -13,11 +13,12 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json ./
 COPY client/package.json ./client/
 
-# Install ALL dependencies (including dev deps for build)
-RUN npm ci
+# Install ALL dependencies (using npm install to handle missing/outdated lock files)
+# This will generate a new package-lock.json if needed
+RUN npm install
 
 # Copy source code
 COPY client ./client

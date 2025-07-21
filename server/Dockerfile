@@ -20,11 +20,11 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nodejs
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json ./
 COPY server/package.json ./server/
 
-# Install ALL dependencies 
-RUN npm ci
+# Install ALL dependencies (using npm install to handle missing/outdated lock files)
+RUN npm install
 
 # Copy source code
 COPY server/src ./server/src
