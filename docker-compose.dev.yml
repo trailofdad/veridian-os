@@ -31,7 +31,7 @@ services:
       - /app/server/node_modules
       - ./data:/app/data
     ports:
-      - "8000:3001"
+      - "3001:3001"
     environment:
       - NODE_ENV=development
       - DATABASE_PATH=/app/data/veridian.db
