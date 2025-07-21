@@ -20,6 +20,16 @@ RUN npm install --workspace=client
 # Install the correct SWC binary for ARM64/Alpine
 RUN npm install --save-dev @next/swc-linux-arm64-musl
 
+# 1.5. Development stage - for hot reloading and development
+FROM deps AS development
+WORKDIR /app
+
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+
+EXPOSE 3000
+CMD ["npm", "run", "dev", "--workspace=client"]
+
 # 2. Build the source code
 FROM base AS builder
 WORKDIR /app

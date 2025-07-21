@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: client/Dockerfile
-      target: deps
+      target: development
     volumes:
       - ./client:/app/client
       - /app/client/node_modules
@@ -23,7 +23,7 @@ services:
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: deps
+      target: development
     volumes:
       - ./server:/app/server
       - /app/server/node_modules

@@ -27,6 +27,15 @@ RUN \
   fi && \
   npm install --workspace=server
 
+# 1.5. Development stage - for hot reloading and development
+FROM deps AS development
+WORKDIR /app
+
+ENV NODE_ENV=development
+
+EXPOSE 3001
+CMD ["npm", "run", "dev:mock", "--workspace=server"]
+
 # 2. Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
