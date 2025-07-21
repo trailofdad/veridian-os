@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🍓 Deploying Veridian OS to Raspberry Pi 4..."
+echo "🍓 Deploying Veridian OS to Raspberry Pi 4 with Docker..."
 
 # Set environment variables for ARM64 build
 export DOCKER_DEFAULT_PLATFORM=linux/arm64
@@ -30,12 +30,6 @@ if [[ $(uname -m) != "aarch64" ]]; then
     docker buildx inspect --bootstrap
 fi
 
-# Check if nginx config exists
-if [ ! -f "./nginx.conf" ]; then
-    echo "❌ nginx.conf not found. Please ensure nginx.conf is in the root directory."
-    exit 1
-fi
-
 # Build images with explicit platform targeting for Pi 4
 echo "🔧 Building ARM64 containers for Raspberry Pi 4..."
 docker compose -f docker-compose.prod.yml build \
@@ -47,11 +41,13 @@ echo "🚀 Starting production containers..."
 docker compose -f docker-compose.prod.yml up -d
 
 echo "✅ Raspberry Pi 4 deployment complete!"
-echo "🌐 Application: http://localhost (via nginx)"
+echo "🌐 Application: http://localhost (via nginx profile)"
 echo "🌐 Client direct: http://localhost:3000"  
 echo "🔌 Server direct: http://localhost:8000"
+echo ""
 echo "📊 To view logs: docker compose -f docker-compose.prod.yml logs -f"
 echo "🛑 To stop: docker compose -f docker-compose.prod.yml down"
+echo "🌐 To start with nginx: docker compose -f docker-compose.prod.yml --profile with-nginx up -d"
 echo ""
 echo "🔍 Container status:"
 docker compose -f docker-compose.prod.yml ps
@@ -62,3 +58,4 @@ echo "   • ARM64 SWC binaries: ✅ Available"
 echo "   • Cross-platform build: ✅ Configured"
 echo "   • Serial port access: ✅ Configured"
 echo "   • Native modules: ✅ Built for ARM64"
+echo "   • Standalone Next.js: ✅ Minimal runtime dependencies"

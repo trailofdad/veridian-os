@@ -1,5 +1,8 @@
-# Only exclude things we definitely don't need in ANY stage
-# Don't exclude node_modules here - we need them available for the deps stage
+# Dependencies (exclude source node_modules, but allow built ones)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Source builds (exclude source .next, but allow built standalone)
 client/.next/cache
@@ -41,9 +44,6 @@ docker-compose*.yml
 # Logs
 *.log
 logs/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # Runtime data
 *.pid

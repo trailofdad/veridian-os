@@ -2,44 +2,40 @@
 
 FROM node:22-alpine AS base
 
-# 1. Install dependencies only when needed
+# 1. Install dependencies with full source context
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-# Copy both root and client package files
-COPY package.json package-lock.json* ./
-COPY client/package.json ./client/
+# Copy the entire source code into deps
+COPY . ./
 
-# Install dependencies - use npm ci if lock file exists, otherwise npm install
-RUN \
-  if [ -f package-lock.json ]; then npm ci; \
-  else echo "No lockfile found, running npm install" && npm install; \
-  fi
+# Install top-level dependencies first
+RUN npm install
+
+# Install client workspace dependencies
+RUN npm install --workspace=client
 
 # Install the correct SWC binary for ARM64/Alpine
 RUN npm install --save-dev @next/swc-linux-arm64-musl
 
-# 2. Rebuild the source code only when needed
+# 2. Build the source code
 FROM base AS builder
 WORKDIR /app
 
-# Copy node_modules and package files from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/package.json ./package.json
-COPY --from=deps /app/client/package.json ./client/package.json
+# Copy everything from deps (source + installed dependencies)
+COPY --from=deps /app ./
 
-# Copy all source code
-COPY client ./client
-
-# Build the application with ARM64 SWC support
+# Build the Next.js application
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build --workspace=client
 
-# 3. Production image, copy all the files and run next
+# Debug: Check what was actually built
+RUN echo "Checking standalone output:" && ls -la /app/client/.next/standalone/ || echo "No standalone directory"
+
+# 3. Production image
 FROM base AS runner
 WORKDIR /app
 
@@ -50,11 +46,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy the complete standalone build including node_modules and package.json
-COPY --from=builder --chown=nextjs:nodejs /app/client/.next/standalone/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/client/.next/standalone/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/client/.next/standalone/client ./client
-COPY --from=builder --chown=nextjs:nodejs /app/client/.next/static ./client/.next/static
+# Copy the standalone output (should now include node_modules)
+COPY --from=builder --chown=nextjs:nodejs /app/client/.next/standalone ./
+
+# Copy static files
+COPY --from=builder --chown=nextjs:nodejs /app/client/.next/static ./.next/static
 
 USER nextjs
 
@@ -63,5 +59,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# The server.js is in the client directory within the standalone build
 CMD ["node", "client/server.js"]
