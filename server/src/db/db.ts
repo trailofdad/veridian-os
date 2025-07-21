@@ -6,7 +6,7 @@ import Database from 'better-sqlite3';
 let db: import('better-sqlite3').Database | null = null;
 
 // Define the path for your SQLite database file
-const dbFilePath = path.resolve(__dirname, '../../../plant_data.db');
+const dbFilePath = process.env.DATABASE_PATH || path.resolve(__dirname, "../../../plant_data.db");
 
 /**
  * Initializes the SQLite database: opens the file, enables WAL mode,

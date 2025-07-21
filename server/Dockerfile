@@ -20,10 +20,12 @@ COPY package.json package-lock.json* ./
 COPY server/package.json ./server/
 
 # Install dependencies - use npm ci if lock file exists, otherwise npm install
+# Important: Install both root and workspace dependencies
 RUN \
   if [ -f package-lock.json ]; then npm ci; \
   else echo "No lockfile found, running npm install" && npm install; \
-  fi
+  fi && \
+  npm install --workspace=server
 
 # 2. Rebuild the source code only when needed
 FROM base AS builder
@@ -61,9 +63,7 @@ RUN adduser --system --uid 1001 nodejs
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/server/dist ./server/dist
 COPY --from=builder /app/package.json ./package.json
-
-# Prune dev dependencies
-RUN npm prune --production
+COPY --from=builder /app/server/package.json ./server/package.json
 
 # Create directory for SQLite database
 RUN mkdir -p /app/data && chown nodejs:nodejs /app/data
