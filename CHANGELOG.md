@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0](https://github.com/trailofdad/veridian-os/compare/v0.4.1...v0.5.0) (2025-07-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* Restructured API route files for better maintainability
+
+- Refactor monolithic sensor-routes.ts into focused modules:
+  * sensor-routes.ts: Pure sensor data endpoints (3 endpoints)
+  * plant-routes.ts: Plant & stage management (7 endpoints)
+  * notification-routes.ts: Alerts & notifications (7 endpoints)
+  * user-routes.ts: User & settings management (7 endpoints)
+
+- Add comprehensive API documentation:
+  * Complete endpoint documentation for all route files
+  * Request/response examples and status codes
+  * Architecture overview and security considerations
+  * Developer onboarding and testing guides
+
+- Improve code organization and maintainability:
+  * Single responsibility principle for each route file
+  * Better separation of concerns
+  * Easier navigation and development
+  * Cleaner git history for future changes
+
+- Update server configuration:
+  * Import and configure all 4 route modules
+  * Maintain existing middleware and CORS setup
+  * Verified build compatibility
+
+All endpoints remain functionally identical with no API changes.
+
+### ### Added
+
+* refactor API routes and add comprehensive documentation ([5f425ee](https://github.com/trailofdad/veridian-os/commit/5f425eeff42514f2cf08538a0a7e2aa4a8ef5a27))
+
 ### [0.4.1](https://github.com/trailofdad/veridian-os/compare/v0.4.0...v0.4.1) (2025-07-22)
 
 
