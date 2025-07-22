@@ -18,7 +18,7 @@ router.post('/users', (req: Request, res: Response) => {
         res.status(201).json({ message: 'User created successfully', userId: result.lastInsertRowid });
     } catch (error) {
         console.error('Error creating user:', error);
-        res.status(500).json({ message: 'Failed to create user', error: error.message });
+        res.status(500).json({ message: 'Failed to create user', error: (error as Error).message });
     }
 });
 
@@ -36,7 +36,7 @@ router.get('/users/:id', (req: Request, res: Response) => {
         }
     } catch (error) {
         console.error('Error retrieving user:', error);
-        res.status(500).json({ message: 'Failed to retrieve user', error: error.message });
+        res.status(500).json({ message: 'Failed to retrieve user', error: (error as Error).message });
     }
 });
 
@@ -65,7 +65,7 @@ router.put('/users/:id', (req: Request, res: Response) => {
         }
     } catch (error) {
         console.error('Error updating user:', error);
-        res.status(500).json({ message: 'Failed to update user', error: error.message });
+        res.status(500).json({ message: 'Failed to update user', error: (error as Error).message });
     }
 });
 
@@ -84,7 +84,7 @@ router.delete('/users/:id', (req: Request, res: Response) => {
         }
     } catch (error) {
         console.error('Error deleting user:', error);
-        res.status(500).json({ message: 'Failed to delete user', error: error.message });
+        res.status(500).json({ message: 'Failed to delete user', error: (error as Error).message });
     }
 });
 
@@ -101,7 +101,7 @@ router.get('/users/:id/settings', (req: Request, res: Response) => {
         `).all(userId);
         
         // Convert to key-value object for easier frontend consumption
-        const settingsObj = settings.reduce((acc, setting) => {
+        const settingsObj = settings.reduce((acc: Record<string, any>, setting: any) => {
             acc[setting.setting_key] = setting.setting_value;
             return acc;
         }, {});
@@ -109,7 +109,7 @@ router.get('/users/:id/settings', (req: Request, res: Response) => {
         res.json(settingsObj);
     } catch (error) {
         console.error('Error retrieving user settings:', error);
-        res.status(500).json({ message: 'Failed to retrieve user settings', error: error.message });
+        res.status(500).json({ message: 'Failed to retrieve user settings', error: (error as Error).message });
     }
 });
 
@@ -134,7 +134,7 @@ router.put('/users/:id/settings/:key', (req: Request, res: Response) => {
         res.json({ message: 'User setting updated successfully' });
     } catch (error) {
         console.error('Error updating user setting:', error);
-        res.status(500).json({ message: 'Failed to update user setting', error: error.message });
+        res.status(500).json({ message: 'Failed to update user setting', error: (error as Error).message });
     }
 });
 
@@ -158,7 +158,7 @@ router.delete('/users/:id/settings/:key', (req: Request, res: Response) => {
         }
     } catch (error) {
         console.error('Error deleting user setting:', error);
-        res.status(500).json({ message: 'Failed to delete user setting', error: error.message });
+        res.status(500).json({ message: 'Failed to delete user setting', error: (error as Error).message });
     }
 });
 
