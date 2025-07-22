@@ -4,6 +4,8 @@ import cors from 'cors'; // For development
 import path from 'path';
 import { initializeDatabase, getDbInstance } from './db/db';
 import sensorRoutes from './api/sensor-routes';
+import plantRoutes from './api/plant-routes';
+import notificationRoutes from './api/notification-routes';
 import userRoutes from './api/user-routes';
 
 const app = express();
@@ -19,8 +21,10 @@ app.use(cors({
 app.use(express.json()); // Essential for parsing JSON request bodies (from serial reader script and client)
 
 // --- API Routes ---
-// All routes defined in sensor-routes.ts will be prefixed with '/api'
+// All route files are prefixed with '/api'
 app.use('/api', sensorRoutes);
+app.use('/api', plantRoutes);
+app.use('/api', notificationRoutes);
 app.use('/api', userRoutes);
 
 // --- Serve Static Client Files (Optional for local development, critical for production on Pi) ---
