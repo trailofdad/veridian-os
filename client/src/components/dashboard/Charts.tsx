@@ -1,8 +1,20 @@
 import { getSensorDisplayInfo } from "@/utils/sensor-utils";
-import { Title, Card, TabGroup, TabList, Tab, TabPanels, TabPanel, Grid, AreaChart, Text } from "@tremor/react";
+import {
+  Title,
+  Card,
+  TabGroup,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  Grid,
+  AreaChart,
+  Text,
+} from "@tremor/react";
 import React, { useEffect, useState } from "react";
-import { SensorReading, TIME_PERIODS, TRENDING_SENSORS } from ".";
+import { SensorReading } from ".";
 import { API_ENDPOINTS, apiCall } from "@/lib/api-config";
+import { TIME_PERIODS, TRENDING_SENSORS } from "@/lib/chartUtils";
 
 interface HistoricalData {
   timestamp: string;
@@ -19,43 +31,43 @@ const Charts: React.FC<ChartsProps> = ({ sensorData }) => {
     TIME_PERIODS[0].value
   );
   const [historicalData, setHistoricalData] = useState<
-      Record<string, HistoricalData[]>
-    >({});
+    Record<string, HistoricalData[]>
+  >({});
 
-   // Fetch historical data for charts
-    useEffect(() => {
-      const fetchHistoricalData = async () => {
-        try {
-          const selectedPeriod = TIME_PERIODS.find(
-            (p) => p.value === selectedTimePeriod
+  // Fetch historical data for charts
+  useEffect(() => {
+    const fetchHistoricalData = async () => {
+      try {
+        const selectedPeriod = TIME_PERIODS.find(
+          (p) => p.value === selectedTimePeriod
+        );
+        const hours = selectedPeriod?.hours || 24;
+        const days = hours / 24;
+
+        const historicalPromises = TRENDING_SENSORS.map(async (sensorType) => {
+          const response = await apiCall(
+            API_ENDPOINTS.SENSOR_HISTORY(sensorType) + `?days=${days}`
           );
-          const hours = selectedPeriod?.hours || 24;
-          const days = hours / 24;
-  
-          const historicalPromises = TRENDING_SENSORS.map(async (sensorType) => {
-            const response = await apiCall(
-              API_ENDPOINTS.SENSOR_HISTORY(sensorType) + `?days=${days}`
-            );
-            const data = await response.json();
-            return { sensorType, data };
-          });
-  
-          const results = await Promise.all(historicalPromises);
-          const historical: Record<string, HistoricalData[]> = {};
-  
-          results.forEach(({ sensorType, data }) => {
-            historical[sensorType] = data;
-          });
-  
-          setHistoricalData(historical);
-        } catch (error) {
-          console.error("Failed to fetch historical data:", error);
-        }
-      };
-  
-      fetchHistoricalData();
-    }, [selectedTimePeriod]);
-  
+          const data = await response.json();
+          return { sensorType, data };
+        });
+
+        const results = await Promise.all(historicalPromises);
+        const historical: Record<string, HistoricalData[]> = {};
+
+        results.forEach(({ sensorType, data }) => {
+          historical[sensorType] = data;
+        });
+
+        setHistoricalData(historical);
+      } catch (error) {
+        console.error("Failed to fetch historical data:", error);
+      }
+    };
+
+    fetchHistoricalData();
+  }, [selectedTimePeriod]);
+
   // Prepare data for charts
   const prepareChartData = (sensorType: string) => {
     const data = historicalData[sensorType] || [];

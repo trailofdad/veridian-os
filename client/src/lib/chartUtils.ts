@@ -124,3 +124,17 @@ export function hasOnlyOneValueForKey(
 
   return true
 }
+
+// Time period options for trends
+export const TIME_PERIODS = [
+  { label: "1 Hour", value: "1h", hours: 1 },
+  { label: "3 Hours", value: "3h", hours: 3 },
+  { label: "6 Hours", value: "6h", hours: 6 },
+  { label: "12 Hours", value: "12h", hours: 12 },
+  { label: "24 Hours", value: "24h", hours: 24 },
+  { label: "48 Hours", value: "48h", hours: 48 },
+  { label: "1 Week", value: "1w", hours: 168 },
+];
+
+// Focus on these key sensor types for trending
+export const TRENDING_SENSORS = ["temperature", "humidity", "soil_moisture"];
