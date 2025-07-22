@@ -5,19 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.0](https://github.com/trailofdad/veridian-os/compare/v0.3.0...v0.4.0) (2025-07-22)
 
-### Planned
-- User authentication and multi-user support
-- Plant type management and customization
-- Mobile app companion
-- Integration with additional sensor types
-- Advanced analytics and reporting
-- Email/SMS alert notifications
-- Weather API integration
-- Plant care recommendations
-- Data export functionality
-- Custom dashboard themes
+
+### ### Infrastructure
+
+* add automated release management with standard-version ([9697e33](https://github.com/trailofdad/veridian-os/commit/9697e33cacbfaf76732d06718c0a188a9a918a2c))
+
+
+### ### Changed
+
+* extract SensorCard component from dashboard ([2983aab](https://github.com/trailofdad/veridian-os/commit/2983aab64e98a395cf6063a56b6329f6de18db9a))
+
+
+### ### Fixed
+
+* improve code organization and extract reusable constants ([6ae9962](https://github.com/trailofdad/veridian-os/commit/6ae99621e13494b6d0581446ee84d1e4cccd5433))
+
+
+### ### Added
+
+* major dashboard refactor - modularize components and fix polling ([fa14199](https://github.com/trailofdad/veridian-os/commit/fa14199cf85e487e3808d6251b422cb2e6bcc7f8))
+* major dashboard refactor and component modularization ([e6205c6](https://github.com/trailofdad/veridian-os/commit/e6205c64f286f412bc78752925610fb81dc81885))
 
 ## [0.3.0] - 2025-07-21
 
