@@ -6,6 +6,7 @@ import { initializeDatabase, getDbInstance } from './db/db';
 import sensorRoutes from './api/sensor-routes';
 import plantRoutes from './api/plant-routes';
 import notificationRoutes from './api/notification-routes';
+import notificationManagementRoutes from './api/notification-management-routes';
 import userRoutes from './api/user-routes';
 
 const app = express();
@@ -25,6 +26,7 @@ app.use(express.json()); // Essential for parsing JSON request bodies (from seri
 app.use('/api', sensorRoutes);
 app.use('/api', plantRoutes);
 app.use('/api', notificationRoutes);
+app.use('/api', notificationManagementRoutes);
 app.use('/api', userRoutes);
 
 // --- Serve Static Client Files (Optional for local development, critical for production on Pi) ---

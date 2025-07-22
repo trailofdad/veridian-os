@@ -1,5 +1,6 @@
 // Plant Health Monitoring Configuration - Server Side
 import { getDbInstance } from '../db/db';
+import { getNotificationManager, NotificationManager, NotificationType, NotificationSeverity } from './notifications';
 
 export type HealthStatus = 'ideal' | 'ok' | 'dangerous';
 export type PlantStage = 'seedling' | 'vegetative' | 'flowering';
@@ -139,8 +140,19 @@ export function checkAndCreateAlerts(
       // Only create alert if it's dangerous AND we don't already have an active alert for this sensor
       if (status === 'dangerous' && !activeAlertSensors.has(sensor.sensor_type)) {
         const message = getStatusMessage(status, sensorType);
-        insertAlert.run(sensor.sensor_type, message, sensor.value, sensor.unit);
+        const result = insertAlert.run(sensor.sensor_type, message, sensor.value, sensor.unit);
         console.log(`[ALERT] Created alert for ${sensor.sensor_type}: ${message}`);
+        
+        // Send notifications for the new alert
+        sendAlertNotification({
+          alertId: result.lastInsertRowid as number,
+          sensorType: sensor.sensor_type,
+          message,
+          value: sensor.value,
+          unit: sensor.unit
+        }).catch(error => {
+          console.error('[ALERT] Failed to send notification:', error);
+        });
       }
     }
   }
@@ -273,4 +285,63 @@ export function autoManageAlerts(): void {
     autoDismissQuery.run(result.count - alertsToKeep);
     console.log(`[ALERT] Auto-dismissed ${result.count - alertsToKeep} oldest alerts`);
   }
+}
+
+// Helper function to send alert notifications
+async function sendAlertNotification(alert: {
+  alertId: number;
+  sensorType: string;
+  message: string;
+  value: number;
+  unit: string;
+}): Promise<void> {
+  try {
+    const notificationManager = await getNotificationManager();
+    
+    // Determine severity based on sensor type and value
+    const severity = getSeverityForAlert(alert.sensorType, alert.value);
+    
+    const notification = NotificationManager.createNotification(
+      NotificationType.ALERT_CREATED,
+      `Plant Alert: ${alert.sensorType.replace('_', ' ').toUpperCase()}`,
+      alert.message,
+      {
+        severity,
+        sensorType: alert.sensorType,
+        value: alert.value,
+        unit: alert.unit,
+        data: {
+          alert_id: alert.alertId,
+          sensor_reading: `${alert.value}${alert.unit}`,
+          status: 'dangerous'
+        }
+      }
+    );
+    
+    // Send to all users (in a single-user app, this will be the admin)
+    await notificationManager.notify(notification);
+  } catch (error) {
+    console.error('[ALERT] Error sending notification:', error);
+  }
+}
+
+// Helper function to determine notification severity
+function getSeverityForAlert(sensorType: string, value: number): NotificationSeverity {
+  // Critical values that require immediate attention
+  const criticalRanges: Record<string, { min?: number; max?: number }> = {
+    temperature: { min: 10, max: 35 }, // Extreme temperatures
+    humidity: { min: 20, max: 90 },    // Extreme humidity
+    soil_moisture: { min: 10, max: 90 } // Extreme soil moisture
+  };
+  
+  const range = criticalRanges[sensorType];
+  if (range) {
+    if ((range.min !== undefined && value <= range.min) || 
+        (range.max !== undefined && value >= range.max)) {
+      return NotificationSeverity.CRITICAL;
+    }
+  }
+  
+  // Default to high severity for dangerous sensor readings
+  return NotificationSeverity.HIGH;
 }
