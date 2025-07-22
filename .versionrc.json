@@ -1,0 +1,83 @@
+{
+  "packageFiles": [
+    {
+      "filename": "package.json",
+      "type": "json"
+    },
+    {
+      "filename": "client/package.json", 
+      "type": "json"
+    },
+    {
+      "filename": "server/package.json",
+      "type": "json"
+    }
+  ],
+  "bumpFiles": [
+    {
+      "filename": "package.json",
+      "type": "json"
+    },
+    {
+      "filename": "client/package.json",
+      "type": "json"
+    },
+    {
+      "filename": "server/package.json", 
+      "type": "json"
+    }
+  ],
+  "commitAll": true,
+  "scripts": {
+    "postbump": "echo 'Version bumped in all packages: root, client, server'",
+    "precommit": "echo 'Committing version changes and CHANGELOG.md'"
+  },
+  "types": [
+    {
+      "type": "feat",
+      "section": "### Added"
+    },
+    {
+      "type": "fix", 
+      "section": "### Fixed"
+    },
+    {
+      "type": "chore",
+      "section": "### Infrastructure",
+      "hidden": false
+    },
+    {
+      "type": "docs",
+      "section": "### Documentation",
+      "hidden": false
+    },
+    {
+      "type": "style",
+      "section": "### Style",
+      "hidden": true
+    },
+    {
+      "type": "refactor",
+      "section": "### Changed", 
+      "hidden": false
+    },
+    {
+      "type": "perf",
+      "section": "### Performance",
+      "hidden": false
+    },
+    {
+      "type": "test",
+      "section": "### Testing",
+      "hidden": true
+    }
+  ],
+  "commitUrlFormat": "{{host}}/{{owner}}/{{repository}}/commit/{{hash}}",
+  "compareUrlFormat": "{{host}}/{{owner}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "{{host}}/{{owner}}/{{repository}}/issues/{{id}}",
+  "userUrlFormat": "{{host}}/{{user}}",
+  "releaseCommitMessageFormat": "chore(release): {{currentTag}}",
+  "issuePrefixes": ["#"],
+  "preMajor": false,
+  "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n"
+}

@@ -15,9 +15,22 @@
     "docker:down:prod": "docker compose -f docker-compose.prod.yml down",
     "docker:down:dev": "docker compose -f docker-compose.dev.yml down",
     "docker:logs:prod": "docker compose -f docker-compose.prod.yml logs -f",
-    "docker:logs:dev": "docker compose -f docker-compose.dev.yml logs -f"
+    "docker:logs:dev": "docker compose -f docker-compose.dev.yml logs -f",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
+    "release:patch": "standard-version --release-as patch",
+    "release:dry-run": "standard-version --dry-run",
+    "prerelease": "npm run build"
   },
-  "keywords": ["plant", "monitoring", "iot", "raspberry-pi", "next.js", "node.js"],
+  "keywords": [
+    "plant",
+    "monitoring",
+    "iot",
+    "raspberry-pi",
+    "next.js",
+    "node.js"
+  ],
   "author": "",
   "license": "ISC",
   "private": true,
@@ -27,5 +40,8 @@
   ],
   "dependencies": {
     "concurrently": "^9.2.0"
+  },
+  "devDependencies": {
+    "standard-version": "^9.5.0"
   }
 }
