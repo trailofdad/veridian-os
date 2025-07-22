@@ -8,6 +8,7 @@ const POSSIBLE_PORTS = [
   "/dev/ttyUSB0",           // Linux Arduino (common)
   "/dev/ttyACM0",           // Linux Arduino (alternative)
   "/dev/tty.usbserial-*",   // macOS FTDI devices
+  "/dev/tty.usbmodem1112101"
 ];
 
 // Function to find the first available port
