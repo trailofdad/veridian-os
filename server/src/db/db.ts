@@ -39,6 +39,40 @@ export async function initializeDatabase(): Promise<void> {
                     value TEXT NOT NULL
                 );
 
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    full_name TEXT,
+                    avatar_url TEXT,
+                    is_active BOOLEAN DEFAULT 1,
+                    is_admin BOOLEAN DEFAULT 0,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    last_login_at DATETIME,
+                    timezone TEXT DEFAULT 'UTC',
+                    theme TEXT DEFAULT 'light',
+                    language TEXT DEFAULT 'en'
+                );
+                CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
+                CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
+                CREATE INDEX IF NOT EXISTS idx_users_active ON users (is_active);
+
+                CREATE TABLE IF NOT EXISTS user_settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    setting_key TEXT NOT NULL,
+                    setting_value TEXT NOT NULL,
+                    setting_type TEXT DEFAULT 'string',
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    UNIQUE(user_id, setting_key)
+                );
+                CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings (user_id);
+                CREATE INDEX IF NOT EXISTS idx_user_settings_key ON user_settings (setting_key);
+
                 CREATE TABLE IF NOT EXISTS plant_stages (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL,
@@ -151,6 +185,36 @@ export async function initializeDatabase(): Promise<void> {
                 }
             } catch (migrationError) {
                 console.log('Migration completed or not needed:', migrationError);
+            }
+            
+            // Seed default admin user if none exist
+            try {
+                const existingUsers = db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number };
+                if (existingUsers.count === 0) {
+                    console.log('Seeding default admin user...');
+                    // Note: In a real application, you should hash the password properly
+                    // For now, using a placeholder hash - you'll need to implement proper password hashing
+                    const defaultPasswordHash = '$2b$10$placeholder.hash.for.default.admin.password';
+                    
+                    const insertUserStmt = db.prepare(`
+                        INSERT INTO users (username, email, password_hash, full_name, is_admin, is_active)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    `);
+                    
+                    const result = insertUserStmt.run('Admin', 'admin@veridianos.ca', defaultPasswordHash, 'Veridian Admin', 1, 1);
+                    const adminUserId = result.lastInsertRowid;
+                    
+                    // Add default theme setting for admin user
+                    const insertSettingStmt = db.prepare(`
+                        INSERT INTO user_settings (user_id, setting_key, setting_value, setting_type)
+                        VALUES (?, ?, ?, ?)
+                    `);
+                    
+                    insertSettingStmt.run(adminUserId, 'theme', 'dark', 'string');
+                    console.log('Default admin user seeded successfully with dark theme.');
+                }
+            } catch (seedError) {
+                console.log('User seeding error (may be normal):', seedError);
             }
             
             // Seed default plant stages if none exist

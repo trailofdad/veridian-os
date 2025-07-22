@@ -4,6 +4,7 @@ import cors from 'cors'; // For development
 import path from 'path';
 import { initializeDatabase, getDbInstance } from './db/db';
 import sensorRoutes from './api/sensor-routes';
+import userRoutes from './api/user-routes';
 
 const app = express();
 const port = 3001; // Or any other port you prefer for your API
@@ -12,7 +13,7 @@ const port = 3001; // Or any other port you prefer for your API
 // Enable CORS. In production, restrict this to your specific client origin.
 app.use(cors({
     origin: ['http://localhost:3000', /^http:\/\/192\.168\.\d+\.\d+:3000$/],
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
 app.use(express.json()); // Essential for parsing JSON request bodies (from serial reader script and client)
@@ -20,6 +21,7 @@ app.use(express.json()); // Essential for parsing JSON request bodies (from seri
 // --- API Routes ---
 // All routes defined in sensor-routes.ts will be prefixed with '/api'
 app.use('/api', sensorRoutes);
+app.use('/api', userRoutes);
 
 // --- Serve Static Client Files (Optional for local development, critical for production on Pi) ---
 // In a production environment on the Pi, Nginx/Caddy would often serve the static
