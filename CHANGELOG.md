@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Planned
+- User authentication and multi-user support
+- Plant type management and customization
+- Mobile app companion
+- Integration with additional sensor types
+- Advanced analytics and reporting
+- Email/SMS alert notifications
+- Weather API integration
+- Plant care recommendations
+- Data export functionality
+- Custom dashboard themes
+
+## [0.3.0] - 2025-07-21
+
+### Added
+- **WiFi capabilities** for Arduino MKR ENV sensors with direct HTTP POST to API
+- **Dual-mode Arduino script** (`env-wifi-dual.ino`) supporting WiFi and automatic serial fallback
+- **WiFi diagnostics tool** (`wifi-test.ino`) for network troubleshooting and connection testing
+- **Comprehensive WiFi setup guide** with step-by-step configuration and troubleshooting
+- **Network scanning functionality** to detect available networks and signal strength
+- **Smart error handling** with detailed status codes and connection diagnostics
+
+### Technical Improvements
+- **Automatic reconnection logic** with periodic retry for lost WiFi connections
+- **2.4GHz network support** ensuring compatibility with Arduino MKR WiFi 1010
+- **HTTP client integration** using ArduinoHttpClient library for reliable API communication
+- **Serial fallback mechanism** maintaining compatibility with existing serial reader infrastructure
+- **Signal strength monitoring** (RSSI) for connection quality assessment
+- **Timeout optimization** preventing connection hanging and improving stability
+
+### Fixed
+- **Hardcoded WiFi credentials** issue preventing dynamic network configuration
+- **Connection timeout logic** that was causing excessive wait times (90s → 10s)
+- **WiFi retry mechanism** with proper delay intervals and attempt limiting
+- **Variable scope issues** in Arduino struct declarations
+
+### Infrastructure
+- **Version bump** across all package.json files (0.2.0 → 0.3.0)
+- **New Arduino file structure** with organized WiFi implementations
+- **Documentation updates** including troubleshooting guides and example outputs
+
 ## [0.2.0] - 2025-01-21
 
 ### Added
@@ -70,17 +113,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Error handling** - Comprehensive error catching and logging
 - **CORS configuration** - Secure cross-origin resource sharing
 - **Database prepared statements** - SQL injection prevention
-
-## [Unreleased]
-
-### Planned
-- User authentication and multi-user support
-- Plant type management and customization
-- Mobile app companion
-- Integration with additional sensor types
-- Advanced analytics and reporting
-- Email/SMS alert notifications
-- Weather API integration
-- Plant care recommendations
-- Data export functionality
-- Custom dashboard themes
