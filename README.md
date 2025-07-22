@@ -62,6 +62,16 @@ VeridianOS is a smart plant growing application with real-time monitoring and tr
 - Automatic serial port detection
 - Fallback mechanisms for reliability
 
+## New Features
+
+Recent updates have introduced exciting new features:
+
+- **Notification Middleware**: A comprehensive system for handling notifications efficiently.
+- **API Restructuring**: Refactored API structure for improved maintainability, with detailed documentation across all routes.
+- **TypeScript Enhancements**: Fixed various TypeScript errors to improve developer experience.
+
+For detailed changes, please refer to the [Changelog](CHANGELOG.md).
+
 ## Quick Start
 
 ### Prerequisites
@@ -99,12 +109,18 @@ npm run prod:docker
 
 ## Development Workflows
 
-See `DEVELOPMENT.md` for detailed development options:
+See [`DEVELOPMENT.md`](DEVELOPMENT.md) for detailed development options:
 
 - **Local Development**: Fast iteration without Docker overhead
 - **Docker Development**: Full containerized environment
 - **Hardware Integration**: Real Arduino sensor integration
 - **Mock Data Mode**: Development without physical hardware
+
+## Documentation
+
+- [Changelog](CHANGELOG.md): Detailed list of changes in each version.
+- [Deployment Guide](DEPLOYMENT.md): Instructions on deploying this application in various environments.
+- [API Documentation](server/docs/API.md): Comprehensive overview of the available API endpoints.
 
 ## Project Structure
 
