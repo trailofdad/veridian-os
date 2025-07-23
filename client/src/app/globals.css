@@ -127,3 +127,48 @@
     }
   }
 }
+
+/* ========================================
+   Windows95 Theme Styles
+   ======================================== */
+
+/* Windows95 inset border effect */
+.win95-border-inset {
+  border: 2px inset;
+  border-color: #c0c0c0 #808080 #808080 #c0c0c0;
+}
+
+.dark .win95-border-inset {
+  border-color: #505050 #303030 #303030 #505050;
+}
+
+/* Windows95 outset border effect (for buttons) */
+.win95-border-outset {
+  border: 2px outset;
+  border-color: #c0c0c0 #808080 #808080 #c0c0c0;
+}
+
+.dark .win95-border-outset {
+  border-color: #505050 #303030 #303030 #505050;
+}
+
+/* Windows95 window title bar gradient */
+.win95-titlebar {
+  background: linear-gradient(90deg, #0000ff 0%, #8080ff 100%);
+}
+
+.dark .win95-titlebar {
+  background: linear-gradient(90deg, #000080 0%, #4040aa 100%);
+}
+
+/* Windows95 window frame */
+.win95-window-frame {
+  background-color: #c0c0c0;
+  border: 2px outset;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+}
+
+.dark .win95-window-frame {
+  background-color: #404040;
+  border-color: #606060 #202020 #202020 #606060;
+}

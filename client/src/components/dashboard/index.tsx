@@ -4,6 +4,8 @@ import { Flex, Divider } from "@tremor/react";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { NotificationSystem } from "@/components/notifications/NotificationSystem";
+import { AIInsights } from "@/components/ai/AIInsights";
+import { NavigationProvider } from "@/contexts/NavigationContext";
 import SensorDataUnavailable from "./SensorDataUnavailable";
 import DashboardTitle from "./Title";
 import HealthScore from "./HealthScore";
@@ -72,8 +74,10 @@ export const Dashboard = () => {
   }
 
   return (
-    <Layout>
-      <NotificationSystem />
+    <NavigationProvider>
+      <Layout>
+        <NotificationSystem />
+        <AIInsights sensorData={sensorData} />
 
       {/* Page Header with Health Overview */}
       <div className="mb-8">
@@ -98,7 +102,8 @@ export const Dashboard = () => {
         </div>
       )}
 
-      <Footer />
-    </Layout>
+        <Footer />
+      </Layout>
+    </NavigationProvider>
   );
 };

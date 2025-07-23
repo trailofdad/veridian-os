@@ -14,10 +14,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@headlessui/react": "^2.2.4",
     "@remixicon/react": "^4.5.0",
     "@tremor/react": "^3.18.7",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.23.6",
     "geist": "^1.4.2",
     "next": "14.2.30",
     "prettier": "^3.6.2",

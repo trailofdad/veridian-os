@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, Text, Badge, Button, Flex } from '@tremor/react';
 import { apiCall, API_ENDPOINTS } from '@/lib/api-config';
 import { formatToADT } from '@/utils/format-date';
+import { useNavigation } from '@/contexts/NavigationContext';
 import React from 'react';
 import { 
   RiPlantLine,
@@ -17,7 +18,8 @@ import {
   RiDropLine,
   RiWindyLine,
   RiSunLine,
-  RiAlarmWarningLine
+  RiAlarmWarningLine,
+  RiArrowDownSLine
 } from '@remixicon/react';
 
 interface ServerAlert {
@@ -34,13 +36,15 @@ interface ServerAlert {
 }
 
 interface NavigationProps {
-  // Future props can be added here
+  // Navigation is now purely presentational
 }
 
 export const Navigation: React.FC<NavigationProps> = () => {
+  const { openAIInsights } = useNavigation();
   const [notificationTray, setNotificationTray] = useState<ServerAlert[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showTray, setShowTray] = useState(false);
+  const [showAIDropdown, setShowAIDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchNotificationTray = async () => {
@@ -124,18 +128,21 @@ export const Navigation: React.FC<NavigationProps> = () => {
     }
   };
 
-  // Close tray when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (showTray && !target.closest('.notification-tray')) {
         setShowTray(false);
       }
+      if (showAIDropdown && !target.closest('.ai-dropdown')) {
+        setShowAIDropdown(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showTray]);
+  }, [showTray, showAIDropdown]);
 
   return (
     <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 shadow-lg shadow-black/10 dark:shadow-black/25 border-b border-white/20 dark:border-gray-700/30 supports-[backdrop-filter]:bg-white/60 supports-[backdrop-filter]:dark:bg-gray-900/60">
@@ -175,6 +182,38 @@ export const Navigation: React.FC<NavigationProps> = () => {
               >
                 History
               </Button>
+              {/* AI Insights Dropdown */}
+              <div className="relative ai-dropdown">
+                <Button
+                  variant="light"
+                  size="sm"
+                  onClick={() => setShowAIDropdown(!showAIDropdown)}
+                  className="text-tremor-content dark:text-dark-tremor-content hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors flex items-center space-x-1"
+                >
+                  <span>AI</span>
+                  <RiArrowDownSLine className="w-4 h-4" />
+                </Button>
+                
+                {/* AI Dropdown Menu */}
+                {showAIDropdown && (
+                  <div className="absolute left-0 mt-2 w-48 backdrop-blur-md bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-lg shadow-black/10 dark:shadow-black/30 border border-gray-200/50 dark:border-gray-700/50 z-50">
+                    <div className="p-2">
+                      <Button
+                        variant="light"
+                        size="sm"
+                        onClick={() => {
+                          openAIInsights();
+                          setShowAIDropdown(false);
+                        }}
+                        className="w-full text-left justify-start text-tremor-content dark:text-dark-tremor-content hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
+                      >
+                        Daily Insights
+                      </Button>
+                      {/* Future AI features can be added here */}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
