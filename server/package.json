@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "VeridianOS Backend - Express.js API server for plant monitoring",
   "main": "index.js",
   "scripts": {

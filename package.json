@@ -1,6 +1,6 @@
 {
   "name": "veridian-os",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "A smart plant growing application",
   "main": "index.js",
   "scripts": {
