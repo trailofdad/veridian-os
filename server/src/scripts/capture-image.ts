@@ -1,9 +1,19 @@
-// src/scripts/capture-image.js
+// src/scripts/capture-image.ts
 
-const { exec } = require('child_process');
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
+import { exec } from 'child_process';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
+
+interface CaptureResponse {
+    message: string;
+    imagePath: string;
+    timestamp: string;
+    error?: string;
+}
 
 // Configuration - Update these variables with your Raspberry Pi's details
 const SSH_USER = process.env.PI_SSH_USER || 'christian';
@@ -12,7 +22,7 @@ const PI_PORT = process.env.PI_SSH_PORT || '22';
 const API_PORT = process.env.PI_API_PORT || '3001';
 const LOCAL_DIR = process.env.LOCAL_IMAGE_DIR || os.homedir();
 
-function execCommand(command, timeout = 30000) {
+function execCommand(command: string, timeout: number = 30000): Promise<string> {
     return new Promise((resolve, reject) => {
         console.log(`Executing: ${command}`);
         
@@ -36,14 +46,14 @@ function execCommand(command, timeout = 30000) {
     });
 }
 
-async function validateConnection() {
+async function validateConnection(): Promise<boolean> {
     try {
         console.log('🔍 Testing SSH connection to Raspberry Pi...');
         const testCommand = `ssh -p ${PI_PORT} -o ConnectTimeout=10 ${SSH_USER}@${PI_HOST} "echo 'Connection successful'"`;
         await execCommand(testCommand, 15000);
         console.log('✅ SSH connection established');
         return true;
-    } catch (error) {
+    } catch (error: any) {
         console.error('❌ SSH connection failed:', error.message);
         console.log('\n💡 Make sure:');
         console.log(`   - SSH is enabled on your Raspberry Pi`);
@@ -79,7 +89,7 @@ async function setupDirectories() {
         
         console.log('✅ Timelapse directory setup completed');
         return true;
-    } catch (error) {
+    } catch (error: any) {
         console.error('❌ Failed to setup directories:', error.message);
         console.log('\n💡 Make sure:');
         console.log(`   - Your user (${SSH_USER}) has sudo privileges`);
@@ -113,7 +123,7 @@ async function captureImage() {
         
         console.log(`✅ Image captured successfully: ${imagePath}`);
         return imagePath;
-    } catch (error) {
+    } catch (error: any) {
         console.error('❌ Failed to capture image:', error.message);
         console.log('\n💡 Make sure:');
         console.log(`   - Your Express server is running on the Pi (port ${API_PORT})`);
@@ -123,7 +133,7 @@ async function captureImage() {
     }
 }
 
-async function transferImage(remoteImagePath) {
+async function transferImage(remoteImagePath: string) {
     try {
         console.log('📁 Transferring image to local machine...');
         const imageName = path.basename(remoteImagePath);
@@ -150,7 +160,7 @@ async function transferImage(remoteImagePath) {
         console.log(`✅ Image transferred successfully to: ${localImagePath}`);
         console.log(`📊 File size: ${(stats.size / 1024 / 1024).toFixed(2)} MB`);
         return localImagePath;
-    } catch (error) {
+    } catch (error: any) {
         console.error('❌ Failed to transfer image:', error.message);
         throw error;
     }
@@ -180,7 +190,7 @@ async function main() {
         console.log('\n🎉 Process completed successfully!');
         console.log(`📸 Image saved to: ${localImagePath}`);
         
-    } catch (error) {
+    } catch (error: any) {
         console.error('\n💥 Process failed:', error.message);
         process.exit(1);
     }

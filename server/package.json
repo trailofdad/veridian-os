@@ -11,7 +11,7 @@
     "dev:mock": "concurrently \"npm run start\" \"npm run start:mock\"",
     "build": "tsc",
     "serve": "node dist/server.js",
-    "capture-image": "node src/scripts/capture-image.js"
+    "capture-image": "ts-node src/scripts/capture-image.ts"
   },
   "keywords": [],
   "author": "",
