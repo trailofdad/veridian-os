@@ -54,6 +54,41 @@ async function validateConnection() {
     }
 }
 
+async function setupDirectories() {
+    try {
+        console.log('📁 Setting up timelapse directory on Raspberry Pi...');
+        
+        // Create the timelapse directory with proper permissions
+        const setupCommands = [
+            // Create the directory if it doesn't exist
+            `sudo mkdir -p /timelapse`,
+            // Change ownership to the current user
+            `sudo chown ${SSH_USER}:${SSH_USER} /timelapse`,
+            // Set proper permissions (read, write, execute for owner and group)
+            `sudo chmod 775 /timelapse`,
+            // Verify the directory exists and is writable
+            `test -w /timelapse && echo "Directory setup successful" || echo "Directory setup failed"`
+        ];
+        
+        const command = `ssh -p ${PI_PORT} ${SSH_USER}@${PI_HOST} "${setupCommands.join(' && ')}"`;
+        const output = await execCommand(command, 30000);
+        
+        if (!output.includes('Directory setup successful')) {
+            throw new Error('Directory setup verification failed');
+        }
+        
+        console.log('✅ Timelapse directory setup completed');
+        return true;
+    } catch (error) {
+        console.error('❌ Failed to setup directories:', error.message);
+        console.log('\n💡 Make sure:');
+        console.log(`   - Your user (${SSH_USER}) has sudo privileges`);
+        console.log(`   - The Pi has sufficient disk space`);
+        console.log(`   - You can run: sudo mkdir -p /timelapse\n`);
+        throw error;
+    }
+}
+
 async function captureImage() {
     try {
         console.log('📸 Capturing image from Raspberry Pi camera...');
@@ -133,6 +168,9 @@ async function main() {
             process.exit(1);
         }
         
+        // Set up directories and permissions
+        await setupDirectories();
+        
         // Capture image
         const remoteImagePath = await captureImage();
         
@@ -146,17 +184,6 @@ async function main() {
         console.error('\n💥 Process failed:', error.message);
         process.exit(1);
     }
-}
-
-// Handle command line arguments
-if (PI_HOST === 'your-pi-ip') {
-    console.error('❌ Please update the PI_HOST variable or set the PI_HOST environment variable');
-    console.log('\n🔧 Usage:');
-    console.log('   node capture-image.js');
-    console.log('   # OR with environment variables:');
-    console.log('   PI_HOST=192.168.1.100 node capture-image.js');
-    console.log('   PI_HOST=192.168.1.100 PI_SSH_USER=myuser node capture-image.js\n');
-    process.exit(1);
 }
 
 // Run the capture and transfer process
