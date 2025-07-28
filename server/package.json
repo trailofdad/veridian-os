@@ -10,7 +10,8 @@
     "dev": "concurrently \"npm run start\" \"npm run start:serial\"",
     "dev:mock": "concurrently \"npm run start\" \"npm run start:mock\"",
     "build": "tsc",
-    "serve": "node dist/server.js"
+    "serve": "node dist/server.js",
+    "capture-image": "node src/scripts/capture-image.js"
   },
   "keywords": [],
   "author": "",

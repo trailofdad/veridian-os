@@ -8,6 +8,7 @@ import plantRoutes from './api/plant-routes';
 import notificationRoutes from './api/notification-routes';
 import notificationManagementRoutes from './api/notification-management-routes';
 import userRoutes from './api/user-routes';
+import cameraRoutes from './api/camera-routes';
 
 const app = express();
 const port = 3001; // Or any other port you prefer for your API
@@ -28,6 +29,7 @@ app.use('/api', plantRoutes);
 app.use('/api', notificationRoutes);
 app.use('/api', notificationManagementRoutes);
 app.use('/api', userRoutes);
+app.use('/api', cameraRoutes);
 
 // --- Serve Static Client Files (Optional for local development, critical for production on Pi) ---
 // In a production environment on the Pi, Nginx/Caddy would often serve the static
